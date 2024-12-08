@@ -10,6 +10,16 @@ const HeaderTwo = () => {
 	}
 
 	const { theme, handleDarkModeToggle } = useDarkMode();
+	
+	const [userInfo, setUserInfo] = React.useState<any>({});
+
+	React.useEffect(() => {
+		const userInfoString = localStorage.getItem("userInfo");
+		console.log(userInfoString);
+		if (userInfoString) {
+			setUserInfo(JSON.parse(userInfoString));			
+		}	
+	}, []);
 
 	return (
 		<>
@@ -58,11 +68,11 @@ const HeaderTwo = () => {
 							<div className="sidenav-style1"></div>
 
 							<div className="user-profile">
-								<img src="/assets/img/bg-img/2.jpg" alt="" />
+								<img src={userInfo.profilePhoto} alt="photo" />
 							</div>
 
 							<div className="user-info">
-								<h6 className="user-name mb-0">Affan Islam</h6>
+								<h6 className="user-name mb-0">{userInfo.fullName}</h6>
 								{/* <span>CEO, Designing World</span> */}
 							</div>
 						</div>
