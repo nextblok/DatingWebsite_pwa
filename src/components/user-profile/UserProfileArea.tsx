@@ -1,16 +1,73 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const UserProfileArea = () => {
+  interface UserInfo {
+    fullName: string;
+    role: string;
+    id: string;
+    profilePhoto: string;
+    email: string;
+  }
+
+  const [features, setFeatures] = useState([]);
   const [formData, setFormData] = useState({
-    username: "@designing-world",
-    fullname: "Jamil Rayhan",
-    email: "care@example.com",
-    job: "35",
-    portfolio: "https://themeforest.net/user/rk_theme",
-    address: "28/C Green Road, BD",
-    bio: "Hi, I’m Alex! I love exploring new places, great food, and creative adventures. Looking for someone genuine, who loves to laugh and is up for spontaneous moments and meaningful conversations. Let’s make life unforgettable together!",
+    // fullname: "Jamil Rayhan",
+    // email: "care@example.com",
+    // age: "35",
+    // portfolio: "https://themeforest.net/user/rk_theme",
+    // address: "28/C Green Road, BD",
+    // bio: "Hi, I'm Alex! I love exploring new places, great food, and creative adventures. Looking for someone genuine, who loves to laugh and is up for spontaneous moments and meaningful conversations. Let's make life unforgettable together!",
   });
+  const [userInfo, setUserInfo] = useState<UserInfo>({} as UserInfo);
+
+  useEffect(() => {
+    const userInfoString = localStorage.getItem("userInfo");
+    //{"fullName":"Sarah Johnson","role":"user","id":"6755930441cec5459c77e680","profilePhoto":"https://randomuser.me/api/portraits/women/31.jpg","email":"sarah@gmail.com"}
+    let userInfo: UserInfo = {} as UserInfo;
+    if (userInfoString) {
+      userInfo = JSON.parse(userInfoString);
+      setUserInfo(userInfo);
+    }
+
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/user/get`,
+          {
+            user_id: userInfo.id,
+          }
+        );
+        if (response.data.success) {
+          console.log(response.data.data);
+          setFormData(response.data.data);
+        } else {
+          console.log(response.data.message);
+        }
+      } catch (err: any) {
+        console.log(err.response?.data?.message);
+      }
+    };
+    fetchUserData();
+
+    const fetchFeatures = async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/feature/get`,
+          {}
+        );
+        if (response.data.result) {
+          setFeatures(response.data.data);
+        } else {
+          console.log(response.data.message);
+        }
+      } catch (err: any) {
+        console.log(err.response?.data?.message);
+      }
+    };
+    fetchFeatures();
+  }, []);
 
   const handleChange = (e: any) => {
     const { id, value } = e.target;
@@ -24,6 +81,26 @@ const UserProfileArea = () => {
     e.preventDefault();
     // Handle form submission
     console.log("Form submitted:", formData);
+    (async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/user/update`,
+          {
+            user_id: userInfo.id,
+            ...formData
+          }
+        );
+        if (response.data.success) {
+          console.log(response.data.message);
+        } else {
+          console.log(response.data.message);
+        }
+      } catch (err: any) {
+        console.log(err.response?.data?.message);
+      }
+    })();
+
+   
   };
 
   return (
@@ -34,7 +111,7 @@ const UserProfileArea = () => {
           <div className="card user-info-card mb-3">
             <div className="card-body d-flex align-items-center">
               <div className="user-profile me-3">
-                <img src="/assets/img/bg-img/2.jpg" alt="" />
+                <img src={userInfo.profilePhoto} alt="" />
                 <i className="bi bi-pencil"></i>
                 <form onSubmit={(e) => e.preventDefault()}>
                   <input className="form-control" type="file" />
@@ -60,20 +137,20 @@ const UserProfileArea = () => {
                     className="form-control"
                     id="fullname"
                     type="text"
-                    value={formData.fullname}
+                    value={formData?.fullName}
                     placeholder="Full Name"
-                  />{" "}
+                  />
                 </div>
 
                 <div className="form-group mb-3">
-                  <label className="form-label" htmlFor="job">
+                  <label className="form-label" htmlFor="age">
                     Age
                   </label>
                   <input
                     className="form-control"
-                    id="job"
+                    id="age"
                     type="text"
-                    value={formData.job}
+                    value={formData?.age}
                     placeholder="35"
                     onChange={handleChange}
                   />
@@ -89,7 +166,7 @@ const UserProfileArea = () => {
                     name="bio"
                     cols={30}
                     rows={10}
-                    value={formData.bio}
+                    value={formData?.bio}
                     placeholder="Bio"
                     onChange={handleChange}
                   ></textarea>
@@ -103,132 +180,65 @@ const UserProfileArea = () => {
                   >
                     <h6>Gender: </h6>
                     <div className="row mb-4">
-                      {["Male", "Female", "Transgender "].map((item, i) => (
+                      {["male", "female", "transgender "].map((item, i) => (
                         <div className="form-check col-3">
                           <input
                             className="form-check-input"
                             id="defaultCheckbox"
                             type="checkbox"
-                            value=""
+                            checked={formData?.gender === item}
+                            onChange={(e) => {
+                              setFormData(prev => ({
+                                ...prev,
+                                gender: item
+                              }));
+                            }}
                           />
                           <label
                             className="form-check-label"
                             htmlFor="defaultCheckbox"
                           >
-                            {item}
+                           {["Male", "Female", "Transgender "][i]}
                           </label>
                         </div>
                       ))}
                     </div>
 
-                    <h6>Age: </h6>
-                    <div className="row mb-4">
-                      <div className="form-check col-3">
-                        <input
-                          className="form-check-input"
-                          id="defaultCheckbox"
-                          type="checkbox"
-                          value=""
-                          checked
-                        />
-                        <label
-                          className="form-check-label"
-                          htmlFor="defaultCheckbox"
-                        >
-                          18 ~ 25
-                        </label>
-                      </div>
-                      <div className="form-check col-3">
-                        <input
-                          className="form-check-input"
-                          id="defaultCheckbox"
-                          type="checkbox"
-                          value=""
-                        />
-                        <label
-                          className="form-check-label"
-                          htmlFor="defaultCheckbox"
-                        >
-                          25~ 35
-                        </label>
-                      </div>
-                      <div className="form-check col-3">
-                        <input
-                          className="form-check-input"
-                          id="defaultCheckbox"
-                          type="checkbox"
-                          value=""
-                        />
-                        <label
-                          className="form-check-label"
-                          htmlFor="defaultCheckbox"
-                        >
-                          35 ~ 45
-                        </label>
-                      </div>
-                    </div>
-
-                    <h6>ZODIAC SIGNS: </h6>
-                    <div className="row mb-4">
-                      {[
-                        "Aries",
-                        "Taurus",
-                        "Gemini",
-                        "Cancer",
-                        "Leo",
-                        "Virgo",
-                        "Libra",
-                        "Scorpio",
-                        "Sagittarius",
-                        "Capricorn",
-                        "Aquarius",
-                        "Pisces",
-                      ].map((item, i) => (
-                        <div className="form-check col-3">
-                          <input
-                            className="form-check-input"
-                            id="defaultCheckbox"
-                            type="checkbox"
-                            value=""
-                            checked={i == 2}
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="defaultCheckbox"
-                          >
-                            {item}
-                          </label>
+                    {features.map((feature, i) => (
+                      <>
+                        <h6>{feature?.question}: </h6>
+                        <div className="row mb-4">
+                          {feature?.answers.map((item, i) => (
+                          <div className="form-check col-3">
+                            <input
+                              className="form-check-input"
+                              id={`checkbox-${feature.question}-${i}`}
+                              type="checkbox"
+                              checked={formData?.preference?.[feature._id] === i}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setFormData(prev => ({
+                                    ...prev,
+                                    preference: {
+                                      ...prev.preference,
+                                      [feature._id]: i
+                                    }
+                                  }));
+                                }
+                              }}
+                            />
+                            <label
+                              className="form-check-label"
+                              htmlFor="defaultCheckbox"
+                            >
+                              {item}
+                            </label>
+                          </div>
+                        ))}
                         </div>
-                      ))}
-                    </div>
-
-                    <h6>BODY TYPE: </h6>
-                    <div className="row mb-4">
-                      {[
-                        "Athletic",
-                        "Normal",
-                        "Other",
-                        "Stout",
-                        "Superfluous",
-                        "Thin",
-                      ].map((item, i) => (
-                        <div className="form-check col-3">
-                          <input
-                            className="form-check-input"
-                            id="defaultCheckbox"
-                            type="checkbox"
-                            value=""
-                            checked={i == 1 || i == 2}
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="defaultCheckbox"
-                          >
-                            {item}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
+                      </>
+                    ))}
+                    
                   </form>
                 </div>
 
