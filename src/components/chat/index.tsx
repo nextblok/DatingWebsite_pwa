@@ -6,7 +6,7 @@ import ChatAreaNew from "./ChatAreaNew";
 const Chat = () => {
 	return (
 		<>
-			<HeaderFive />
+			{/* <HeaderFive /> */}
 			<ChatAreaNew />
 		</>
 	);

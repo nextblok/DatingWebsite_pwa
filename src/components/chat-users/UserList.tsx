@@ -1,5 +1,7 @@
+"use client";
 import Link from "next/link";
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 interface DataType {
   id: number;
@@ -9,7 +11,7 @@ interface DataType {
   last_chat: string;
 }
 
-const user_data:DataType[] = [
+const user_data: DataType[] = [
   {
     id: 1,
     status: "chat-unread",
@@ -90,8 +92,47 @@ const user_data:DataType[] = [
     last_chat: "You are welcome 😍😍",
   },
 ];
+interface UserInfo {
+  fullName: string;
+  role: string;
+  id: string;
+  profilePhoto: string;
+  email: string;
+}
 
 const UserList = () => {
+  const [userInfo, setUserInfo] = useState<UserInfo>({} as UserInfo);
+  const [chatUserList, setChatUserList] = useState<any[]>([]);
+
+  useEffect(() => {
+    const userInfoString = localStorage.getItem("userInfo");
+    //{"fullName":"Sarah Johnson","role":"user","id":"675642fbf9873c01577f0c8e","profilePhoto":"https://randomuser.me/api/portraits/women/31.jpg","email":"sarah@gmail.com"}
+    let userInfo: UserInfo = {} as UserInfo;
+    if (userInfoString) {
+      userInfo = JSON.parse(userInfoString);
+      setUserInfo(userInfo);
+    }
+
+    const fetchChatUserList = async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/chat/getList`,
+          {
+            user_id: userInfo.id,
+          }
+        );
+        if (response.data.success) {
+          setChatUserList(response.data.data);
+        } else {
+          console.log(response.data.message);
+        }
+      } catch (err: any) {
+        console.log(err.response?.data?.message);
+      }
+    };
+    fetchChatUserList();
+  }, []);
+
   return (
     <>
       {/* <!-- Element Heading --> */}
@@ -101,28 +142,29 @@ const UserList = () => {
 
       {/* <!-- Chat User List --> */}
       <ul className="ps-0 chat-user-list">
-
-        {user_data.map((item, i) => (
+        {chatUserList.map((item, i) => (
           <li key={i} className={`p-3 ${item.status}`}>
-            <Link className="d-flex" href="/chat">
+            <Link className="d-flex" href={`/chat?opponent_id=${item.user?.id}`}>
               {/* <!-- Thumbnail --> */}
               <div className="chat-user-thumbnail me-3 shadow">
                 <img
                   className="img-circle"
-                  src={item.img}
-                  alt={item.name}
+                  src={item.user?.profilePhoto}
+                  alt={item.user?.fullName}
                 />
-                <span className="active-status"></span>
+                {/* <span className="active-status"></span> */}
               </div>
               {/* <!-- Info --> */}
               <div className="chat-user-info">
-                <h6 className="text-truncate mb-0">{item.name}</h6>
+                <h6 className="text-truncate mb-0">{item.user?.fullName}</h6>
                 <div className="last-chat">
                   <p className="mb-0 text-truncate">
-                    {item.last_chat}
-                    {i === 0 && 
-                    <span className="badge rounded-pill bg-primary"> 2</span>
-                    }
+                    {item.lastMessage}
+                    {/* {item.unreadCount > 0 && (
+                      <span className="badge rounded-pill bg-primary">
+                        {item.unreadCount}
+                      </span>
+                    )} */}
                   </p>
                 </div>
               </div>
@@ -158,7 +200,6 @@ const UserList = () => {
             </div>
           </li>
         ))}
- 
       </ul>
     </>
   );
