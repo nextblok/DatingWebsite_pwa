@@ -12,6 +12,8 @@ const UserProfileArea = () => {
   }
 
   const [features, setFeatures] = useState([]);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(false);
   const [formData, setFormData] = useState({
     // fullname: "Jamil Rayhan",
     // email: "care@example.com",
@@ -87,20 +89,62 @@ const UserProfileArea = () => {
           `${process.env.NEXT_PUBLIC_API_URL}/api/user/update`,
           {
             user_id: userInfo.id,
-            ...formData
+            ...formData,
           }
         );
         if (response.data.success) {
           console.log(response.data.message);
+          setSuccess(true);
+          setError(false);
         } else {
           console.log(response.data.message);
+          setSuccess(false);
+          setError(true);
         }
       } catch (err: any) {
         console.log(err.response?.data?.message);
+        setSuccess(false);
+        setError(true);
       }
     })();
+  };
 
-   
+  const handleUpdateAvatar = async (e: any) => {
+    e.preventDefault();
+    console.log("xxxx");
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+    formData.append('user_id', userInfo.id);
+
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/appuser/updateAvatar`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      if (response.data.result) {
+        console.log(response.data.message);
+        window.location.reload();
+        setSuccess(true);
+        setError(false);
+      } else {
+        console.log(response.data.message);
+        setSuccess(false);
+        setError(true);
+      }
+    } catch (err: any) {
+      console.log(err.response?.data?.message);
+      setSuccess(false);
+      setError(true);
+    }
   };
 
   return (
@@ -111,10 +155,10 @@ const UserProfileArea = () => {
           <div className="card user-info-card mb-3">
             <div className="card-body d-flex align-items-center">
               <div className="user-profile me-3">
-                <img src={userInfo.profilePhoto} alt="" />
+                <img src={formData?.profilePhoto} alt=""/>
                 <i className="bi bi-pencil"></i>
                 <form onSubmit={(e) => e.preventDefault()}>
-                  <input className="form-control" type="file" />
+                  <input className="form-control" type="file" onChange={handleUpdateAvatar} />
                 </form>
               </div>
               <div className="user-info">
@@ -140,6 +184,36 @@ const UserProfileArea = () => {
                     value={formData?.fullName}
                     placeholder="Full Name"
                   />
+                </div>
+
+                <div className="form-group mb-3">
+                  <label className="form-label" htmlFor="age">
+                    Gender
+                  </label>
+                  <div className="row px-3">
+                    {["male", "female", "transgender "].map((item, i) => (
+                      <div className="form-check col-3">
+                        <input
+                          className="form-check-input"
+                          id="defaultCheckbox"
+                          type="checkbox"
+                          checked={formData?.gender === item}
+                          onChange={(e) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              gender: item,
+                            }));
+                          }}
+                        />
+                        <label
+                          className="form-check-label"
+                          htmlFor="defaultCheckbox"
+                        >
+                          {["Male", "Female", "Transgender "][i]}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="form-group mb-3">
@@ -178,69 +252,70 @@ const UserProfileArea = () => {
                     className="mb-3 pb-4 border-bottom"
                     onSubmit={(e) => e.preventDefault()}
                   >
-                    <h6>Gender: </h6>
-                    <div className="row mb-4">
-                      {["male", "female", "transgender "].map((item, i) => (
-                        <div className="form-check col-3">
-                          <input
-                            className="form-check-input"
-                            id="defaultCheckbox"
-                            type="checkbox"
-                            checked={formData?.gender === item}
-                            onChange={(e) => {
-                              setFormData(prev => ({
-                                ...prev,
-                                gender: item
-                              }));
-                            }}
-                          />
-                          <label
-                            className="form-check-label"
-                            htmlFor="defaultCheckbox"
-                          >
-                           {["Male", "Female", "Transgender "][i]}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-
+                    <h4 className="mb-3">Preference</h4>
                     {features.map((feature, i) => (
                       <>
                         <h6>{feature?.question}: </h6>
                         <div className="row mb-4">
                           {feature?.answers.map((item, i) => (
-                          <div className="form-check col-3">
-                            <input
-                              className="form-check-input"
-                              id={`checkbox-${feature.question}-${i}`}
-                              type="checkbox"
-                              checked={formData?.preference?.[feature._id] === i}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setFormData(prev => ({
-                                    ...prev,
-                                    preference: {
-                                      ...prev.preference,
-                                      [feature._id]: i
-                                    }
-                                  }));
+                            <div className="form-check col-3">
+                              <input
+                                className="form-check-input"
+                                id={`checkbox-${feature.question}-${i}`}
+                                type="checkbox"
+                                checked={
+                                  formData?.preference?.[feature._id] === i
                                 }
-                              }}
-                            />
-                            <label
-                              className="form-check-label"
-                              htmlFor="defaultCheckbox"
-                            >
-                              {item}
-                            </label>
-                          </div>
-                        ))}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      preference: {
+                                        ...prev.preference,
+                                        [feature._id]: i,
+                                      },
+                                    }));
+                                  }
+                                }}
+                              />
+                              <label
+                                className="form-check-label"
+                                htmlFor="defaultCheckbox"
+                              >
+                                {item}
+                              </label>
+                            </div>
+                          ))}
                         </div>
                       </>
                     ))}
-                    
                   </form>
                 </div>
+                {success && (
+                  <div
+                    className="alert custom-alert-1 alert-success alert-dismissible fade show"
+                    role="alert"
+                  >
+                    <i className="bi bi-check-circle"></i>
+                    Profile updated successfully!
+                    <button
+                      className="btn btn-close position-relative p-1 ms-auto"
+                      type="button"
+                      data-bs-dismiss="alert"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                )}
+
+                {error && (
+                  <div
+                    className="alert custom-alert-1 alert-danger alert-dismissible fade show"
+                    role="alert"
+                  >
+                    <i className="bi bi-x-circle"></i>
+                    Profile update failed!
+                  </div>
+                )}
 
                 <button className="btn btn-success w-100" type="submit">
                   Update Now
