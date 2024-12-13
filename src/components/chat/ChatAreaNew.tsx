@@ -37,7 +37,7 @@ const ChatArea = () => {
 
   const [fileOpen, setFileOpen] = useState(false);
 
-  const socket = io("http://localhost:8080");
+  const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL);
 
   const [userInfo, setUserInfo] = useState<UserInfo>({} as UserInfo);
   const [opponentInfo, setOpponentInfo] = useState<UserInfo>({} as UserInfo);
