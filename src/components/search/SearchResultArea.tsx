@@ -1,6 +1,7 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import axios from "axios";
 
 const shop_data: any[] = [
   {
@@ -104,12 +105,47 @@ const shop_data: any[] = [
   },
 ];
 
-const SearchResultArea = () => {
-  const [inputValue, setInputValue] = useState("Affan template");
+interface UserInfo {
+  fullName: string;
+  role: string;
+  id: string;
+  profilePhoto: string;
+  email: string;
+}
 
-  const handleChange = (event: any) => {
-    setInputValue(event.target.value);
-  };
+const SearchResultArea = () => {
+  const [userInfo, setUserInfo] = useState<UserInfo>({} as UserInfo);
+  const [userList, setUserList] = useState<any[]>([]);
+
+  useEffect(() => {
+    const userInfoString = localStorage.getItem("userInfo");
+    //{"fullName":"Sarah Johnson","role":"user","id":"675642fbf9873c01577f0c8e","profilePhoto":"https://randomuser.me/api/portraits/women/31.jpg","email":"sarah@gmail.com"}
+    let userInfo: UserInfo = {} as UserInfo;
+    if (userInfoString) {
+      userInfo = JSON.parse(userInfoString);
+      setUserInfo(userInfo);
+    }
+
+    const fetchUserList = async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/appuser/get`,
+          {
+            user_id: userInfo.id,
+          }
+        );
+        if (response.data.success) {
+          setUserList(response.data.data);
+        } else {
+          console.log(response.data.message);
+        }
+      } catch (err: any) {
+        console.log(err.response?.data?.message);
+      }
+    };
+    fetchUserList();
+  }, []);
+
 
   return (
     <>
@@ -259,7 +295,7 @@ const SearchResultArea = () => {
                 <div className="container mb-3">
                   <p className="mb-2 fz-12">37+ candidates found</p>
                   <div className="row g-3">
-                    {shop_data.map((item, i) => (
+                    {userList.map((item, i) => (
                       <div key={i} className="col-6 col-sm-4 col-lg-3">
                         <div className="card single-product-card shadow">
                           <div className="card-body p-3 text-center">
@@ -268,14 +304,14 @@ const SearchResultArea = () => {
                               className="product-thumbnail d-block"
                               href="/member-profile"
                             >
-                              <img src={item.img} alt={item.title} />
+                              <img src={item.profilePhoto} />
                             </Link>
                             {/* <!-- Product Title --> */}
                             <Link
                               className="product-title d-block text-truncate"
                               href="/member-profile"
                             >
-                              {item.title}
+                              {item.fullName}
                             </Link>
                             <div className="text-center row">
                               {/* <a
@@ -290,7 +326,7 @@ const SearchResultArea = () => {
                               </a> */}
                               <div className="col-3"></div>
                               <div className="col-3">
-                                <a href="#">
+                                <a href={`/chat?opponent_id=${item.id}`}>
                                   <i
                                     className="bi bi-chat-dots mr-5"
                                     style={{
