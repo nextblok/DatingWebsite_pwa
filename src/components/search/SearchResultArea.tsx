@@ -134,7 +134,7 @@ const SearchResultArea = () => {
             user_id: userInfo.id,
           }
         );
-        if (response.data.success) {
+        if (response.data.result) {
           setUserList(response.data.data);
         } else {
           console.log(response.data.message);
