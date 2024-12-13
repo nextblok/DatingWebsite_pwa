@@ -295,7 +295,7 @@ const SearchResultArea = () => {
                 <div className="container mb-3">
                   <p className="mb-2 fz-12">37+ candidates found</p>
                   <div className="row g-3">
-                    {userList.map((item, i) => (
+                    {userList.filter(item => item._id !== userInfo.id).map((item, i) => (
                       <div key={i} className="col-6 col-sm-4 col-lg-3">
                         <div className="card single-product-card shadow">
                           <div className="card-body p-3 text-center">
@@ -326,7 +326,7 @@ const SearchResultArea = () => {
                               </a> */}
                               <div className="col-3"></div>
                               <div className="col-3">
-                                <a href={`/chat?opponent_id=${item.id}`}>
+                                <a href={`/chat?opponent_id=${item._id}`}>
                                   <i
                                     className="bi bi-chat-dots mr-5"
                                     style={{
