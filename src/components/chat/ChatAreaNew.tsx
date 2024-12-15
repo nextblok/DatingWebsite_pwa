@@ -41,6 +41,7 @@ const ChatArea = () => {
 
   const [userInfo, setUserInfo] = useState<UserInfo>({} as UserInfo);
   const [opponentInfo, setOpponentInfo] = useState<UserInfo>({} as UserInfo);
+  const [blocked, setBlocked] = useState(false);
 
   useEffect(() => {
     const userInfoString = localStorage.getItem("userInfo");
@@ -94,6 +95,7 @@ const ChatArea = () => {
         if (response.data.success) {
           setChats(response.data.data);
           setOpponentInfo(response.data.user2);
+          setBlocked(response.data.isBlocked);
         } else {
           console.log(response.data.message);
         }
@@ -379,10 +381,15 @@ const ChatArea = () => {
 
       <div className="chat-footer">
         <div className="container h-100">
-          <div className="chat-footer-content h-100 d-flex align-items-center">
-            <form onSubmit={(e) => e.preventDefault()}>
-              {/* <!-- Message --> */}
-              <input
+          <div className="chat-footer-content h-100 d-flex align-items-center"> 
+            {blocked ? (
+              <div className="text-center">
+                <p>You can not chat with this user</p>
+              </div>
+            ) : (
+              <form onSubmit={(e) => e.preventDefault()}>
+                {/* <!-- Message --> */}
+                <input
                 className="form-control"
                 type="text"
                 placeholder="Type here..."
@@ -454,6 +461,7 @@ const ChatArea = () => {
                 <i className="bi bi-cursor"></i>
               </button>
             </form>
+            )}
           </div>
         </div>
       </div>

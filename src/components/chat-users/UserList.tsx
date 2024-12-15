@@ -133,6 +133,40 @@ const UserList = () => {
     fetchChatUserList();
   }, []);
 
+  const handleBlockUser = async (userId: string) => {
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/chat/blockUser`,
+        {
+          user_id: userInfo.id,
+          opponent_id: userId,
+        }
+      );
+      if (response.data.success) {
+        // window.location.reload();
+      } else {
+        console.log(response.data.message);
+      }
+    } catch (err: any) {
+      console.log(err.response?.data?.message);
+    }
+  };
+
+  const handleRemoveUser = async (userId: string) => {
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/chat/remove`,
+      {
+        user_id: userInfo.id,
+        opponent_id: userId,
+      }
+    );
+    if (response.data.success) {
+      window.location.reload();
+    } else {
+      console.log(response.data.message);
+    }
+  };
+
   return (
     <>
       {/* <!-- Element Heading --> */}
@@ -144,7 +178,10 @@ const UserList = () => {
       <ul className="ps-0 chat-user-list">
         {chatUserList.map((item, i) => (
           <li key={i} className={`p-3 ${item.status}`}>
-            <Link className="d-flex" href={`/chat?opponent_id=${item.user?.id}`}>
+            <Link
+              className="d-flex"
+              href={`/chat?opponent_id=${item.user?.id}`}
+            >
               {/* <!-- Thumbnail --> */}
               <div className="chat-user-thumbnail me-3 shadow">
                 <img
@@ -181,18 +218,18 @@ const UserList = () => {
                 <i className="bi bi-three-dots-vertical"></i>
               </button>
               <ul className="dropdown-menu">
-                <li>
+                {/* <li>
                   <a href="#">
                     <i className="bi bi-mic-mute"></i>Mute
                   </a>
-                </li>
+                </li> */}
                 <li>
-                  <a href="#">
-                    <i className="bi bi-slash-circle"></i>Ban
+                  <a href="#" onClick={() => handleBlockUser(item.user?.id)}>
+                    <i className="bi bi-slash-circle"></i>Block
                   </a>
                 </li>
                 <li>
-                  <a href="#">
+                  <a href="#" onClick={() => handleRemoveUser(item.user?.id)}>
                     <i className="bi bi-trash"></i>Remove
                   </a>
                 </li>

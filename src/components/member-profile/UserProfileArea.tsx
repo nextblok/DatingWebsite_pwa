@@ -214,6 +214,7 @@ const UserProfileArea = () => {
                   <div className="card-body">
                     <div className="rating-card-one text-center">
                       <h6 className="mb-3">How much compatitable with you?</h6>
+                      <p>80%, 40/50 questions matched</p>
 
                       <div className="rating">
                         <a href="#">
