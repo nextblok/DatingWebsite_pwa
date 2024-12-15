@@ -41,7 +41,7 @@ const SocialLogin = () => {
 					{/* <!-- Login Meta --> */}
 					<div className="login-meta-data text-center">
 						<p className="mb-0">
-							Didnt have an account? 
+							Don't have an account? 
 							<Link className="stretched-link" href="/register">
 								Register Now
 							</Link>

@@ -141,7 +141,7 @@ const Login = () => {
               Forgot Password?
             </Link>
             <p className="mb-0">
-              Didnt have an account?
+              Don't have an account?
               <Link className="stretched-link" href="/register">
                 {" "}
                 Register Now

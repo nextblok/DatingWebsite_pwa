@@ -162,7 +162,7 @@ const SearchResultArea = () => {
                   <h6>Gender: </h6>
                   <div className="row mb-4">
                     {["Male", "Female", "Transgender "].map((item, i) => (
-                      <div className="form-check col-3">
+                      <div className="form-check col-6 col-sm-4 col-md-3 col-lg-2" key={i}>
                         <input
                           className="form-check-input"
                           id="defaultCheckbox"
@@ -181,7 +181,7 @@ const SearchResultArea = () => {
 
                   <h6>Age: </h6>
                   <div className="row mb-4">
-                    <div className="form-check col-3">
+                    <div className="form-check col-6 col-sm-4 col-md-3 col-lg-2">
                       <input
                         className="form-check-input"
                         id="defaultCheckbox"
@@ -192,10 +192,10 @@ const SearchResultArea = () => {
                         className="form-check-label"
                         htmlFor="defaultCheckbox"
                       >
-                        18 ~ 25
+                        18 ~ 30
                       </label>
                     </div>
-                    <div className="form-check col-3">
+                    <div className="form-check col-6 col-sm-4 col-md-3 col-lg-2">
                       <input
                         className="form-check-input"
                         id="defaultCheckbox"
@@ -206,10 +206,10 @@ const SearchResultArea = () => {
                         className="form-check-label"
                         htmlFor="defaultCheckbox"
                       >
-                        25~ 35
+                        30 ~ 50
                       </label>
                     </div>
-                    <div className="form-check col-3">
+                    <div className="form-check col-6 col-sm-4 col-md-3 col-lg-2">
                       <input
                         className="form-check-input"
                         id="defaultCheckbox"
@@ -220,7 +220,7 @@ const SearchResultArea = () => {
                         className="form-check-label"
                         htmlFor="defaultCheckbox"
                       >
-                        35 ~ 45
+                        50 ~ 99
                       </label>
                     </div>
                   </div>
@@ -241,7 +241,7 @@ const SearchResultArea = () => {
                       "Aquarius",
                       "Pisces",
                     ].map((item, i) => (
-                      <div className="form-check col-3">
+                      <div className="form-check col-6 col-sm-4 col-md-3 col-lg-2" key={i}>
                         <input
                           className="form-check-input"
                           id="defaultCheckbox"
@@ -268,7 +268,7 @@ const SearchResultArea = () => {
                       "Superfluous",
                       "Thin",
                     ].map((item, i) => (
-                      <div className="form-check col-3">
+                      <div className="form-check col-6 col-sm-4 col-md-3 col-lg-2" key={i}>
                         <input
                           className="form-check-input"
                           id="defaultCheckbox"
