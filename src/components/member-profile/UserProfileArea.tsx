@@ -240,10 +240,6 @@ const UserProfileArea = () => {
                 <button className="btn btn-success w-100" type="submit">
                   Follow
                 </button>
-
-                <p>
-                  I sent email to you Fred Marshall fred.l.marshall30093@gmail.com
-                </p>
               </form>
             </div>
           </div>

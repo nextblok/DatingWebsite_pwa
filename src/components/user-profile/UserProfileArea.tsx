@@ -255,7 +255,7 @@ const UserProfileArea = () => {
                     <h4 className="mb-3">Preference</h4>
                     {features.map((feature, i) => (
                       <>
-                        <h6>{feature?.question}: </h6>
+                        <h6>{feature?.question} </h6>
                         <div className="row mb-4">
                           {feature?.answers.map((item, i) => (
                             <div className="form-check col-3">
