@@ -192,6 +192,30 @@ const UserProfileArea = () => {
                     </a>
                   </div>
                   <div className="col-4">
+                    <a href="#" className="mr-3">
+                      <i
+                        className="bi bi-arrow-through-heart-fill"
+                        style={{ color: "#f1b10f", fontSize: "40px" }}
+                      ></i>
+                    </a>
+                  </div>
+                  <div className="col-4">
+                    <a href="#" className="mr-3">
+                      <i
+                        className="bi bi-heart"
+                        style={{ color: "#f1b10f", fontSize: "40px" }}
+                      ></i>
+                    </a>
+                  </div>
+                  <div className="col-4">
+                    <a href="#" className="mr-3">
+                      <i
+                        className="bi bi-heart-fill"
+                        style={{ color: "#f1b10f", fontSize: "40px" }}
+                      ></i>
+                    </a>
+                  </div>
+                  <div className="col-4">
                     <a href="#">
                       <i
                         className="bi bi-hand-thumbs-up"
@@ -214,32 +238,13 @@ const UserProfileArea = () => {
                   <div className="card-body">
                     <div className="rating-card-one text-center">
                       <h6 className="mb-3">How much compatitable with you?</h6>
-                      <p>80%, 40/50 questions matched</p>
 
-                      <div className="rating">
-                        <a href="#">
-                          <i className="bi bi-star-fill"></i>
-                        </a>
-                        <a href="#">
-                          <i className="bi bi-star-fill"></i>
-                        </a>
-                        <a href="#">
-                          <i className="bi bi-star-fill"></i>
-                        </a>
-                        <a href="#">
-                          <i className="bi bi-star-fill"></i>
-                        </a>
-                        <a href="#">
-                          <i className="bi bi-star-half"></i>
-                        </a>
-                      </div>
+                      <h5 className="text-center fw-bold text-success">
+                        80%, 40/50 questions matched
+                      </h5>
                     </div>
                   </div>
                 </div>
-
-                <button className="btn btn-success w-100" type="submit">
-                  Follow
-                </button>
               </form>
             </div>
           </div>
