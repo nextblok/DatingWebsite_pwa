@@ -118,6 +118,8 @@ const SearchResultArea = () => {
   const [userList, setUserList] = useState<any[]>([]);
   const [likers, setLikers] = useState<any[]>([]); // users who liked me
   const [likees, setLikees] = useState<any[]>([]); // users who i liked
+  const [criteria, setCriteria] = useState<any[]>([]);
+  const [formData, setFormData] = useState<any>({});
 
   useEffect(() => {
     const userInfoString = localStorage.getItem("userInfo");
@@ -126,26 +128,7 @@ const SearchResultArea = () => {
     if (userInfoString) {
       userInfo = JSON.parse(userInfoString);
       setUserInfo(userInfo);
-    }
-
-    const fetchUserList = async () => {
-      try {
-        const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/appuser/get`,
-          {
-            user_id: userInfo.id,
-          }
-        );
-        if (response.data.result) {
-          setUserList(response.data.data);
-        } else {
-          console.log(response.data.message);
-        }
-      } catch (err: any) {
-        console.log(err.response?.data?.message);
-      }
-    };
-    fetchUserList();
+    }  
 
     const fetchLikers = async () => {
       try {
@@ -188,6 +171,23 @@ const SearchResultArea = () => {
       }
     };
     fetchLikees();
+
+    const fetchCriteria = async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/criteria/get`,
+          {}
+        );
+        if (response.data.result) {
+          setCriteria(response.data.data);
+        } else {
+          console.log(response.data.message);
+        }
+      } catch (err: any) {
+        console.log(err.response?.data?.message);
+      }
+    };
+    fetchCriteria();
   }, []);
 
   const handleLikeUser = async (likee_id: string) => {
@@ -228,6 +228,22 @@ const SearchResultArea = () => {
     }
   };
 
+  const handleSearch = async () => {
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/user/search`,
+        formData
+      );
+      if (response.data.success) {
+        setUserList(response.data.data);
+      } else {
+        console.log(response.data.message);
+      }
+    } catch (err: any) {
+      console.log(err.response?.data?.message);
+    }
+  }
+
   return (
     <>
       <div className="page-content-wrapper py-3">
@@ -242,20 +258,33 @@ const SearchResultArea = () => {
                 >
                   <h6>Gender: </h6>
                   <div className="row mb-4">
-                    {["Male", "Female", "Transgender "].map((item, i) => (
+                    {["Male", "Female", "Transgender"].map((item, i) => (
                       <div
                         className="form-check col-6 col-sm-4 col-md-3 col-lg-2"
                         key={i}
                       >
                         <input
                           className="form-check-input"
-                          id="defaultCheckbox"
+                          id={`checkbox-gender-${i}`}
                           type="checkbox"
-                          value=""
+                          checked={formData?.gender?.includes(item)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setFormData((prev: any) => ({
+                                ...prev,
+                                gender: [...(prev.gender || []), item]
+                              }));
+                            } else {
+                              setFormData((prev: any) => ({
+                                ...prev,
+                                gender: prev.gender?.filter((g: string) => g !== item) || []
+                              }));
+                            }
+                          }}
                         />
                         <label
                           className="form-check-label"
-                          htmlFor="defaultCheckbox"
+                          htmlFor={`checkbox-gender-${i}`}
                         >
                           {item}
                         </label>
@@ -265,117 +294,126 @@ const SearchResultArea = () => {
 
                   <h6>Age: </h6>
                   <div className="row mb-4">
-                    <div className="form-check col-6 col-sm-4 col-md-3 col-lg-2">
-                      <input
-                        className="form-check-input"
-                        id="defaultCheckbox"
-                        type="checkbox"
-                        value=""
-                      />
-                      <label
-                        className="form-check-label"
-                        htmlFor="defaultCheckbox"
-                      >
-                        18 ~ 30
-                      </label>
-                    </div>
-                    <div className="form-check col-6 col-sm-4 col-md-3 col-lg-2">
-                      <input
-                        className="form-check-input"
-                        id="defaultCheckbox"
-                        type="checkbox"
-                        value=""
-                      />
-                      <label
-                        className="form-check-label"
-                        htmlFor="defaultCheckbox"
-                      >
-                        30 ~ 50
-                      </label>
-                    </div>
-                    <div className="form-check col-6 col-sm-4 col-md-3 col-lg-2">
-                      <input
-                        className="form-check-input"
-                        id="defaultCheckbox"
-                        type="checkbox"
-                        value=""
-                      />
-                      <label
-                        className="form-check-label"
-                        htmlFor="defaultCheckbox"
-                      >
-                        50 ~ 99
-                      </label>
-                    </div>
-                  </div>
-
-                  <h6>ZODIAC SIGNS: </h6>
-                  <div className="row mb-4">
                     {[
-                      "Aries",
-                      "Taurus",
-                      "Gemini",
-                      "Cancer",
-                      "Leo",
-                      "Virgo",
-                      "Libra",
-                      "Scorpio",
-                      "Sagittarius",
-                      "Capricorn",
-                      "Aquarius",
-                      "Pisces",
-                    ].map((item, i) => (
-                      <div
-                        className="form-check col-6 col-sm-4 col-md-3 col-lg-2"
-                        key={i}
-                      >
+                      { min: 18, max: 30 },
+                      { min: 30, max: 50 },
+                      { min: 50, max: 99 }
+                    ].map((range, i) => (
+                      <div className="form-check col-6 col-sm-4 col-md-3 col-lg-2" key={i}>
                         <input
                           className="form-check-input"
-                          id="defaultCheckbox"
+                          id={`checkbox-age-${i}`}
                           type="checkbox"
-                          value=""
+                          checked={formData?.age?.some(a => a.min === range.min && a.max === range.max)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setFormData((prev: any) => ({
+                                ...prev,
+                                age: [...(prev.age || []), range]
+                              }));
+                            } else {
+                              setFormData((prev: any) => ({
+                                ...prev,
+                                age: prev.age?.filter((a: any) => !(a.min === range.min && a.max === range.max)) || []
+                              }));
+                            }
+                          }}
                         />
                         <label
                           className="form-check-label"
-                          htmlFor="defaultCheckbox"
+                          htmlFor={`checkbox-age-${i}`}
                         >
-                          {item}
+                          {range.min} ~ {range.max}
                         </label>
                       </div>
                     ))}
                   </div>
 
-                  <h6>BODY TYPE: </h6>
-                  <div className="row mb-4">
-                    {[
-                      "Athletic",
-                      "Normal",
-                      "Other",
-                      "Stout",
-                      "Superfluous",
-                      "Thin",
-                    ].map((item, i) => (
-                      <div
-                        className="form-check col-6 col-sm-4 col-md-3 col-lg-2"
-                        key={i}
-                      >
-                        <input
-                          className="form-check-input"
-                          id="defaultCheckbox"
-                          type="checkbox"
-                          value=""
-                        />
-                        <label
-                          className="form-check-label"
-                          htmlFor="defaultCheckbox"
-                        >
-                          {item}
-                        </label>
+                  {criteria.map((criteria, i) => (
+                    <>
+                      <h6>{criteria?.question} </h6>
+                      <div className="row mb-4">
+                        {criteria?.answers.map((item, i) => (
+                          <div className="form-check col-6 col-sm-4 col-md-3 col-lg-2">
+                            <input
+                              className="form-check-input"
+                              id={`checkbox-${criteria.question}-${i}`}
+                              type="checkbox"
+                              checked={formData?.criteria?.[criteria._id]?.includes(i)}
+                              onChange={(e) => {
+                                let criteria_answer = formData?.criteria?.[criteria._id] || [];
+                                if (e.target.checked) {                                 
+                                  if (!criteria_answer.includes(i)) {
+                                    criteria_answer.push(i);
+                                  }
+                                  
+                                  setFormData((prev: any) => ({
+                                    ...prev,
+                                    criteria: {
+                                      ...prev.criteria,
+                                      [criteria._id]: criteria_answer
+                                    }
+                                  }));
+                                } else {
+                                  if (criteria_answer.includes(i)) {
+                                    criteria_answer = criteria_answer.filter((val) => val !== i);
+                                  }
+                                  setFormData((prev: any) => ({
+                                    ...prev,
+                                    criteria: {
+                                      ...prev.criteria,
+                                      [criteria._id]: criteria_answer
+                                    }
+                                  }));
+                                }
+                              }}
+                            />
+                            <label
+                              className="form-check-label"
+                              htmlFor="defaultCheckbox"
+                            >
+                              {item}
+                            </label>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                      <div className="d-flex justify-content-end mb-2 px-5">
+                        <button 
+                          type="button"
+                          className="btn btn-sm btn-outline-primary me-2"
+                          onClick={() => {
+                            const allAnswerIndexes = criteria?.answers.map((_, index) => index);
+                            setFormData((prev: any) => ({
+                              ...prev,
+                              criteria: {
+                                ...prev.criteria,
+                                [criteria._id]: allAnswerIndexes
+                              }
+                            }));
+                          }}
+                        >
+                          Select All
+                        </button>
+                        <button
+                          type="button" 
+                          className="btn btn-sm btn-outline-danger"
+                          onClick={() => {
+                            setFormData((prev: any) => ({
+                              ...prev,
+                              criteria: {
+                                ...prev.criteria,
+                                [criteria._id]: []
+                              }
+                            }));
+                          }}
+                        >
+                          Clear All
+                        </button>
+                      </div>
+                    </>
+                  ))}              
 
-                  <a className={`btn btn-primary rounded-pill`} href="#">
+                  <a className={`btn btn-primary rounded-pill`} onClick={handleSearch}>
                     Search
                   </a>
                 </form>
@@ -383,11 +421,14 @@ const SearchResultArea = () => {
 
               <div className="top-products-area">
                 <div className="container mb-3">
-                  <p className="mb-2 fz-12">37+ candidates found</p>
+                  {userList.length > 0 ?                   
+                      <p className="mb-2 fz-12">{userList.length} candidates found</p>:
+                      <p className="mb-2 fz-12">No candidates found</p>
+                  }
                   <div className="row g-3">
                     {userList
-                      .filter((item) => item._id !== userInfo.id)
-                      .map((item, i) => (
+                      .filter((user) => user.id !== userInfo.id)
+                      .map((user, i) => (
                         <div key={i} className="col-6 col-sm-4 col-lg-3">
                           <div className="card single-product-card shadow">
                             <div className="card-body p-3 text-center">
@@ -396,14 +437,14 @@ const SearchResultArea = () => {
                                 className="product-thumbnail d-block"
                                 href="/member-profile"
                               >
-                                <img src={item.profilePhoto} />
+                                <img src={user.profilePhoto} />
                               </Link>
                               {/* <!-- Product Title --> */}
                               <Link
                                 className="product-title d-block text-truncate"
                                 href="/member-profile"
                               >
-                                {item.fullName}
+                                {user.fullName}
                               </Link>
                               <div className="text-center row">
                                 {/* <a
@@ -418,7 +459,7 @@ const SearchResultArea = () => {
                               </a> */}
                                 <div className="col-3"></div>
                                 <div className="col-3">
-                                  <a href={`/chat?opponent_id=${item._id}`}>
+                                  <a href={`/chat?opponent_id=${user.id}`}>
                                     <i
                                       className="bi bi-chat-dots mr-5"
                                       style={{
@@ -430,13 +471,13 @@ const SearchResultArea = () => {
                                 </div>
 
                                 <div className="col-3">
-                                  {likees.includes(item._id) ? (
-                                    likers.includes(item._id) ? (
+                                  {likees.includes(user.id) ? (
+                                    likers.includes(user.id) ? (
                                       <a
                                         href="#"
                                         className="mr-3"
                                         onClick={() =>
-                                          handleUnLikeUser(item._id)
+                                          handleUnLikeUser(user.id)
                                         }
                                       >
                                         <i
@@ -452,7 +493,7 @@ const SearchResultArea = () => {
                                         href="#"
                                         className="mr-3"
                                         onClick={() =>
-                                          handleUnLikeUser(item._id)
+                                          handleUnLikeUser(user.id)
                                         }
                                       >
                                         <i
@@ -467,7 +508,7 @@ const SearchResultArea = () => {
                                   ) : (
                                     <a
                                       href="#"
-                                      onClick={() => handleLikeUser(item._id)}
+                                      onClick={() => handleLikeUser(user.id)}
                                       className="mr-3"
                                     >
                                       <i
@@ -491,45 +532,47 @@ const SearchResultArea = () => {
               </div>
 
               {/* <!-- Pagination --> */}
-              <nav aria-label="Page navigation example">
-                <ul className="pagination pagination-two justify-content-center">
-                  <li className="page-item">
-                    <a className="page-link" href="#" aria-label="Previous">
-                      <i className="bi bi-chevron-left"></i>
-                    </a>
-                  </li>
-                  <li className="page-item active">
-                    <a className="page-link" href="#">
-                      1
-                    </a>
-                  </li>
-                  <li className="page-item">
-                    <a className="page-link" href="#">
-                      2
-                    </a>
-                  </li>
-                  <li className="page-item">
-                    <a className="page-link" href="#">
-                      3
-                    </a>
-                  </li>
-                  <li className="page-item">
-                    <a className="page-link" href="#">
-                      ...
-                    </a>
-                  </li>
-                  <li className="page-item">
-                    <a className="page-link" href="#">
-                      9
-                    </a>
-                  </li>
-                  <li className="page-item">
-                    <a className="page-link" href="#" aria-label="Next">
-                      <i className="bi bi-chevron-right"></i>
-                    </a>
-                  </li>
-                </ul>
-              </nav>
+              {false && (
+                <nav aria-label="Page navigation example">
+                  <ul className="pagination pagination-two justify-content-center">
+                    <li className="page-item">
+                      <a className="page-link" href="#" aria-label="Previous">
+                        <i className="bi bi-chevron-left"></i>
+                      </a>
+                    </li>
+                    <li className="page-item active">
+                      <a className="page-link" href="#">
+                        1
+                      </a>
+                    </li>
+                    <li className="page-item">
+                      <a className="page-link" href="#">
+                        2
+                      </a>
+                    </li>
+                    <li className="page-item">
+                      <a className="page-link" href="#">
+                        3
+                      </a>
+                    </li>
+                    <li className="page-item">
+                      <a className="page-link" href="#">
+                        ...
+                      </a>
+                    </li>
+                    <li className="page-item">
+                      <a className="page-link" href="#">
+                        9
+                      </a>
+                    </li>
+                    <li className="page-item">
+                      <a className="page-link" href="#" aria-label="Next">
+                        <i className="bi bi-chevron-right"></i>
+                      </a>
+                    </li>
+                  </ul>
+                </nav>
+              )}
             </div>
           </div>
         </div>

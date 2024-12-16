@@ -12,6 +12,7 @@ const UserProfileArea = () => {
   }
 
   const [features, setFeatures] = useState([]);
+  const [criteria, setCriteria] = useState([]);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
   const [formData, setFormData] = useState({
@@ -69,6 +70,23 @@ const UserProfileArea = () => {
       }
     };
     fetchFeatures();
+
+    const fetchCriteria = async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/criteria/get`,
+          {}
+        );
+        if (response.data.result) {
+          setCriteria(response.data.data);
+        } else {
+          console.log(response.data.message);
+        }
+      } catch (err: any) {
+        console.log(err.response?.data?.message);
+      }
+    };
+    fetchCriteria();
   }, []);
 
   const handleChange = (e: any) => {
@@ -116,8 +134,8 @@ const UserProfileArea = () => {
     if (!file) return;
 
     const formData = new FormData();
-    formData.append('avatar', file);
-    formData.append('user_id', userInfo.id);
+    formData.append("avatar", file);
+    formData.append("user_id", userInfo.id);
 
     try {
       const response = await axios.post(
@@ -125,8 +143,8 @@ const UserProfileArea = () => {
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data'
-          }
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
 
@@ -155,10 +173,14 @@ const UserProfileArea = () => {
           <div className="card user-info-card mb-3">
             <div className="card-body d-flex align-items-center">
               <div className="user-profile me-3">
-                <img src={formData?.profilePhoto} alt=""/>
+                <img src={formData?.profilePhoto} alt="" />
                 <i className="bi bi-pencil"></i>
                 <form onSubmit={(e) => e.preventDefault()}>
-                  <input className="form-control" type="file" onChange={handleUpdateAvatar} />
+                  <input
+                    className="form-control"
+                    type="file"
+                    onChange={handleUpdateAvatar}
+                  />
                 </form>
               </div>
               <div className="user-info">
@@ -246,11 +268,53 @@ const UserProfileArea = () => {
                   ></textarea>
                 </div>
 
+                {/* Criteria */}
+                <div className="search-form-wrapper m-3 mt-5">
+                  <div
+                    className="mb-3 pb-4 border-bottom"
+                  >
+                    <h4 className="mb-3">Criteria</h4>
+                    {criteria.map((criteria, i) => (
+                      <>
+                        <h6>{criteria?.question} </h6>
+                        <div className="row mb-4">
+                          {criteria?.answers.map((item, i) => (
+                            <div className="form-check col-6 col-sm-4 col-md-3 col-lg-2">
+                              <input
+                                className="form-check-input"
+                                id={`checkbox-${criteria.question}-${i}`}
+                                type="checkbox"
+                                checked={formData?.criteria?.[criteria._id] === i}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      criteria: {
+                                        ...prev.criteria,
+                                        [criteria._id]: i,
+                                      },
+                                    }));
+                                  }
+                                }}
+                              />
+                              <label
+                                className="form-check-label"
+                                htmlFor="defaultCheckbox"
+                              >
+                                {item}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    ))}
+                  </div>
+                </div>
+
                 {/* preference box */}
                 <div className="search-form-wrapper m-3 mt-5">
-                  <form
+                  <div
                     className="mb-3 pb-4 border-bottom"
-                    onSubmit={(e) => e.preventDefault()}
                   >
                     <h4 className="mb-3">Preference</h4>
                     {features.map((feature, i) => (
@@ -258,7 +322,7 @@ const UserProfileArea = () => {
                         <h6>{feature?.question} </h6>
                         <div className="row mb-4">
                           {feature?.answers.map((item, i) => (
-                            <div className="form-check col-3">
+                            <div className="form-check col-6 col-sm-4 col-md-3 col-lg-2">
                               <input
                                 className="form-check-input"
                                 id={`checkbox-${feature.question}-${i}`}
@@ -289,7 +353,7 @@ const UserProfileArea = () => {
                         </div>
                       </>
                     ))}
-                  </form>
+                  </div>
                 </div>
                 {success && (
                   <div
