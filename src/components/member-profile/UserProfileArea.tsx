@@ -1,29 +1,136 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 const UserProfileArea = () => {
-  const [formData, setFormData] = useState({
-    username: "@designing-world",
-    fullname: "Jamil Rayhan",
-    email: "care@example.com",
-    job: "UX/UI Designer",
-    portfolio: "https://themeforest.net/user/rk_theme",
-    address: "28/C Green Road, BD",
-    bio: "Working as UX/UI Designer at Designing World since 2016.",
-  });
+  interface UserInfo {
+    fullName: string;
+    role: string;
+    id: string;
+    profilePhoto: string;
+    email: string;
+  }
 
-  const handleChange = (e: any) => {
-    const { id, value } = e.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      [id]: value,
-    }));
+  const [features, setFeatures] = useState([]);
+  const [criteria, setCriteria] = useState([]);
+  const [userInfo, setUserInfo] = useState<UserInfo>({} as UserInfo);
+  const [formData, setFormData] = useState({});
+  const [opponentId, setOpponentId] = useState("");
+  const [matchingScore, setMatchingScore] = useState(0); // 0-100
+  useEffect(() => {
+    let opponent_id = new URLSearchParams(window.location.search).get(
+      "opponent_id"
+    );
+    if (opponent_id) {
+      setOpponentId(opponent_id);
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/user/get`,
+          {
+            user_id: opponentId,
+            watcher_id: userInfo.id,
+          }
+        );
+        if (response.data.success) {
+          console.log(response.data.data);
+          setFormData(response.data.data);
+          setMatchingScore(response.data.data.matchingscore);
+        } else {
+          console.log(response.data.message);
+        }
+      } catch (err: any) {
+        console.log(err.response?.data?.message);
+      }
+    };
+    fetchUserData();
+  }, [userInfo.id, opponentId]);
+
+  useEffect(() => {
+    const userInfoString = localStorage.getItem("userInfo");
+    //{"fullName":"Sarah Johnson","role":"user","id":"6755930441cec5459c77e680","profilePhoto":"https://randomuser.me/api/portraits/women/31.jpg","email":"sarah@gmail.com"}
+    let userInfo: UserInfo = {} as UserInfo;
+    if (userInfoString) {
+      userInfo = JSON.parse(userInfoString);
+      setUserInfo(userInfo);
+    }
+
+    const fetchFeatures = async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/feature/get`,
+          {}
+        );
+        if (response.data.result) {
+          setFeatures(response.data.data);
+        } else {
+          console.log(response.data.message);
+        }
+      } catch (err: any) {
+        console.log(err.response?.data?.message);
+      }
+    };
+    fetchFeatures();
+
+    const fetchCriteria = async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/criteria/get`,
+          {}
+        );
+        if (response.data.result) {
+          setCriteria(response.data.data);
+        } else {
+          console.log(response.data.message);
+        }
+      } catch (err: any) {
+        console.log(err.response?.data?.message);
+      }
+    };
+    fetchCriteria();
+  }, []);
+
+  
+  const handleLikeUser = async (likee_id: string) => {
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/like/create`,
+        {
+          liker_id: userInfo.id,
+          likee_id: likee_id,
+        }
+      );
+      if (response.data.result) {
+        setFormData(prev => ({...prev, likeStatus: {...prev.likeStatus, liked: true}}));
+      } else {
+        console.log(response.data.message);
+      }
+    } catch (err: any) {
+      console.log(err.response?.data?.message);
+    }
   };
 
-  const handleSubmit = (e: any) => {
-    e.preventDefault();
-    // Handle form submission
-    console.log("Form submitted:", formData);
+  const handleUnLikeUser = async (likee_id: string) => {
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/like/delete`,
+        {
+          liker_id: userInfo.id,
+          likee_id: likee_id,
+        }
+      );
+      if (response.data.result) {
+        setFormData(prev => ({...prev, likeStatus: {...prev.likeStatus, liked: false}}));
+      } else {
+        console.log(response.data.message);
+      }
+    } catch (err: any) {
+      console.log(err.response?.data?.message);
+    }
   };
 
   return (
@@ -33,37 +140,30 @@ const UserProfileArea = () => {
           {/* <!-- User Meta Data--> */}
           <div className="card user-data-card">
             <div className="card-body">
-              <form onSubmit={handleSubmit}>
+                <form>
                 {/* avatar */}
                 <div className="card team-member-card">
                   <div className="card-body">
                     <div className="team-member-img shadow-sm">
-                      <img src="/assets/img/bg-img/2.jpg" alt="" />
+                      <img src={formData?.profilePhoto} alt="" />
                     </div>
                     <div className="team-info">
-                      <h4 className="mb-1">Jone Dae</h4>
-                      <p className="mb-0">Dating specialist</p>
+                      <h4 className="mb-1">{formData?.fullName}</h4>
+                      <p className="mb-0">{formData?.email}</p>
+                      <p className="mb-0">
+                        {formData?.gender} / {formData?.age}
+                      </p>
                     </div>
-                    <span className="badge bg-success ms-2 rounded-pill">
-                      Verified
-                    </span>
-                    <span className="badge bg-warning ms-2 rounded-pill">
-                      Hot
-                    </span>
                   </div>
                 </div>
                 {/* info */}
                 <div className="mb-4">
                   <h6>Bio</h6>
-                  <p>
-                    Adventurous foodie who loves exploring new places and trying
-                    out unique cuisines. Always up for spontaneous road trips
-                    and deep conversations over coffee.
-                  </p>
+                  <p>{formData?.bio}</p>
                 </div>
 
                 {/* photos */}
-                <div className="mb-4">
+                {/* <div className="mb-4">
                   <h6>Photos</h6>
                   <div className="row">
                     <div className="col-3">
@@ -85,146 +185,97 @@ const UserProfileArea = () => {
                       <img src="/assets/img/bg-img/7.jpg" alt="" />
                     </div>
                   </div>
-                </div>
-                {/* checkbox */}
-                <div className="mb-4">
-                  <h6>Preferences and Answers</h6>
-                  <div className="mb-3"></div>
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      id="preferenceCheckbox1"
-                      type="checkbox"
-                      value=""
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="preferenceCheckbox1"
-                    >
-                      Looking for a serious relationship
-                    </label>
+                </div> */}
+
+                {/* About you */}
+                <div className="search-form-wrapper m-3 mt-5">
+                  <div className="mb-3 pb-4 border-bottom">
+                    <h4 className="mb-3">About you</h4>
+                    {criteria.map((criteria, i) => (
+                      <>
+                        <h6>{criteria?.question} </h6>
+                        <div className="row mb-4">
+                          {criteria?.answers.map((item, i) => (
+                            <div className="form-check col-6 col-sm-4 col-md-3 col-lg-2">
+                              <input
+                                className="form-check-input"
+                                id={`checkbox-${criteria.question}-${i}`}
+                                type="checkbox"
+                                checked={
+                                  formData?.criteria?.[criteria._id] === i
+                                }
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      criteria: {
+                                        ...prev.criteria,
+                                        [criteria._id]: i,
+                                      },
+                                    }));
+                                  }
+                                }}
+                              />
+                              <label
+                                className="form-check-label"
+                                htmlFor="defaultCheckbox"
+                              >
+                                {item}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    ))}
                   </div>
-
-                  <div className="mb-2"></div>
-
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      id="preferenceCheckbox2"
-                      type="checkbox"
-                      value=""
-                      defaultChecked
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="preferenceCheckbox2"
-                    >
-                      Prefer outdoor activities and adventures
-                    </label>
-                  </div>
-
-                  <div className="mb-2"></div>
-
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      id="preferenceCheckbox3"
-                      type="checkbox"
-                      value=""
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="preferenceCheckbox3"
-                    >
-                      Enjoy quiet nights in and relaxing at home
-                    </label>
-                  </div>
-
-                  <div className="mb-2"></div>
-
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      id="preferenceCheckbox4"
-                      type="checkbox"
-                      value=""
-                      defaultChecked
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="preferenceCheckbox4"
-                    >
-                      Interested in meeting new friends and connections
-                    </label>
-                  </div>
-
-                  <div className="mb-2"></div>
-
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      id="preferenceCheckbox5"
-                      type="checkbox"
-                      value=""
-                    />
-                    <label
-                      className="form-check-label"
-                      htmlFor="preferenceCheckbox5"
-                    >
-                      Value good communication and deep conversations
-                    </label>
-                  </div>
-
-                  <div className="mb-2"></div>
                 </div>
 
                 {/* actions */}
                 <div
                   className="row text-center mb-3"
-                  style={{ padding: "0 25% 0 25%" }}
+                  style={{ padding: "0 35% 0 35%" }}
                 >
-                  <div className="col-4">
-                    <a href="#" className="mr-3">
-                      <i
-                        className="bi bi-arrow-through-heart"
-                        style={{ color: "#f1b10f", fontSize: "40px" }}
-                      ></i>
-                    </a>
-                  </div>
-                  <div className="col-4">
-                    <a href="#" className="mr-3">
-                      <i
-                        className="bi bi-arrow-through-heart-fill"
-                        style={{ color: "#f1b10f", fontSize: "40px" }}
-                      ></i>
-                    </a>
-                  </div>
-                  <div className="col-4">
-                    <a href="#" className="mr-3">
-                      <i
-                        className="bi bi-heart"
-                        style={{ color: "#f1b10f", fontSize: "40px" }}
-                      ></i>
-                    </a>
-                  </div>
-                  <div className="col-4">
-                    <a href="#" className="mr-3">
-                      <i
-                        className="bi bi-heart-fill"
-                        style={{ color: "#f1b10f", fontSize: "40px" }}
-                      ></i>
-                    </a>
-                  </div>
-                  <div className="col-4">
-                    <a href="#">
-                      <i
-                        className="bi bi-hand-thumbs-up"
-                        style={{ color: "#f1b10f", fontSize: "40px" }}
-                      ></i>
-                    </a>
-                  </div>
-                  <div className="col-4">
-                    <a href="#">
+                  {formData?.likeStatus?.liked &&
+                    formData?.likeStatus?.mutual && (
+                      <div className="col-6">
+                        <a href="#" className="mr-3" onClick={()=>handleUnLikeUser(opponentId)}>
+                          <i
+                            className="bi bi-arrow-through-heart-fill"
+                            style={{ color: "#f1b10f", fontSize: "40px" }}
+                          ></i>
+                        </a>
+                      </div>
+                    )}
+                  {formData?.likeStatus?.liked &&
+                    !formData?.likeStatus?.mutual && (
+                      <div className="col-6">
+                        <a href="#" className="mr-3" onClick={()=>handleUnLikeUser(opponentId)}>
+                          <i
+                            className="bi bi-heart-fill"
+                            style={{ color: "#f1b10f", fontSize: "40px" }}
+                          ></i>
+                        </a>
+                      </div>
+                    )}
+                  {!formData?.likeStatus?.liked && (
+                    <div className="col-6">
+                      <a href="#" className="mr-3" onClick={()=>handleLikeUser(opponentId)}>
+                        <i
+                          className="bi bi-heart"
+                          style={{ color: "#f1b10f", fontSize: "40px" }}
+                        ></i>
+                      </a>
+                    </div>
+                  )}
+
+                  <div className="col-6">
+                    <a
+                      href="#"
+                      onClick={() =>
+                        (window.location.href =
+                          "/chat?opponent_id=" + opponentId)
+                      }
+                    >
                       <i
                         className="bi bi-chat-dots"
                         style={{ color: "#f1b10f", fontSize: "40px" }}
@@ -240,7 +291,9 @@ const UserProfileArea = () => {
                       <h6 className="mb-3">How much compatitable with you?</h6>
 
                       <h5 className="text-center fw-bold text-success">
-                        80%, 40/50 questions matched
+                        {matchingScore}%,{" "}
+                        {(matchingScore * features.length) / 100}/
+                        {features.length} questions matched
                       </h5>
                     </div>
                   </div>

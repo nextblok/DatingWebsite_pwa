@@ -435,14 +435,14 @@ const SearchResultArea = () => {
                               {/* <!-- Product Thumbnail --> */}
                               <Link
                                 className="product-thumbnail d-block"
-                                href="/member-profile"
+                                href={`/member-profile?opponent_id=${user.id}`}
                               >
                                 <img src={user.profilePhoto} />
                               </Link>
                               {/* <!-- Product Title --> */}
                               <Link
                                 className="product-title d-block text-truncate"
-                                href="/member-profile"
+                                href={`/member-profile?opponent_id=${user.id}`}
                               >
                                 {user.fullName}
                               </Link>
