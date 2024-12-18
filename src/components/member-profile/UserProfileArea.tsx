@@ -190,7 +190,7 @@ const UserProfileArea = () => {
                 {/* About you */}
                 <div className="search-form-wrapper m-3 mt-5">
                   <div className="mb-3 pb-4 border-bottom">
-                    <h4 className="mb-3">About you</h4>
+                    <h4 className="mb-3">About him/her</h4>
                     {criteria.map((criteria, i) => (
                       <>
                         <h6>{criteria?.question} </h6>

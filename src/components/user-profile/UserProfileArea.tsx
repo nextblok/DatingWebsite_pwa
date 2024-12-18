@@ -44,7 +44,15 @@ const UserProfileArea = () => {
         );
         if (response.data.success) {
           console.log(response.data.data);
-          setFormData(response.data.data);
+          let data = response.data.data;
+          // Calculate birth month, day, year from birthdate
+          if (response.data.data.birthdate) {
+            const birthDate = new Date(response.data.data.birthdate);
+            data.birthMonth = birthDate.getMonth() + 1; // getMonth() returns 0-11
+            data.birthDay = birthDate.getDate();
+            data.birthYear = birthDate.getFullYear();
+          }
+          setFormData(data);
         } else {
           console.log(response.data.message);
         }
@@ -99,8 +107,17 @@ const UserProfileArea = () => {
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    // Handle form submission
+    // Combine month, day, year into birthdate
+    if (formData.birthMonth && formData.birthDay && formData.birthYear) {
+      const birthdate = new Date(
+        parseInt(formData.birthYear),
+        parseInt(formData.birthMonth) - 1, // Month is 0-based
+        parseInt(formData.birthDay)
+      );
+      formData.birthdate = birthdate.toISOString().split('T')[0];      
+    }
     console.log("Form submitted:", formData);
+
     (async () => {
       try {
         const response = await axios.post(
@@ -213,8 +230,8 @@ const UserProfileArea = () => {
                     Gender
                   </label>
                   <div className="row px-3">
-                    {["male", "female", "transgender "].map((item, i) => (
-                      <div className="form-check col-3">
+                    {["Male", "Female", "Transgender "].map((item, i) => (
+                      <div className="form-check col-3" key={i}>
                         <input
                           className="form-check-input"
                           id="defaultCheckbox"
@@ -231,7 +248,7 @@ const UserProfileArea = () => {
                           className="form-check-label"
                           htmlFor="defaultCheckbox"
                         >
-                          {["Male", "Female", "Transgender "][i]}
+                          {item}
                         </label>
                       </div>
                     ))}
@@ -239,17 +256,48 @@ const UserProfileArea = () => {
                 </div>
 
                 <div className="form-group mb-3">
-                  <label className="form-label" htmlFor="age">
-                    Age
-                  </label>
-                  <input
-                    className="form-control"
-                    id="age"
-                    type="text"
-                    value={formData?.age}
-                    placeholder="35"
-                    onChange={handleChange}
-                  />
+                  <label className="form-label">Birthday</label>
+                  <div className="row">
+                    <div className="col-4">
+                      <select 
+                        className="form-control"
+                        id="birthYear"
+                        value={formData?.birthYear}
+                        onChange={handleChange}
+                      >
+                        <option value="">Year</option>
+                        {Array.from({length: 100}, (_, i) => new Date().getFullYear() - i).map(year => (
+                          <option key={year} value={year}>{year}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="col-4">
+                      <select
+                        className="form-control"
+                        id="birthMonth" 
+                        value={formData?.birthMonth}
+                        onChange={handleChange}
+                      >
+                        <option value="">Month</option>
+                        {Array.from({length: 12}, (_, i) => i + 1).map(month => (
+                          <option key={month} value={month}>{month}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="col-4">
+                      <select
+                        className="form-control"
+                        id="birthDay"
+                        value={formData?.birthDay}
+                        onChange={handleChange}
+                      >
+                        <option value="">Day</option>
+                        {Array.from({length: 31}, (_, i) => i + 1).map(day => (
+                          <option key={day} value={day}>{day}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="form-group mb-3">

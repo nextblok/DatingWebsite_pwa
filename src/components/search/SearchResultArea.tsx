@@ -377,7 +377,7 @@ const SearchResultArea = () => {
                           </div>
                         ))}
                       </div>
-                      <div className="d-flex justify-content-end mb-2 px-5">
+                      {/* <div className="d-flex justify-content-end mb-2 px-5">
                         <button 
                           type="button"
                           className="btn btn-sm btn-outline-primary me-2"
@@ -409,7 +409,7 @@ const SearchResultArea = () => {
                         >
                           Clear All
                         </button>
-                      </div>
+                      </div> */}
                     </>
                   ))}              
 
