@@ -128,7 +128,7 @@ const SearchResultArea = () => {
     if (userInfoString) {
       userInfo = JSON.parse(userInfoString);
       setUserInfo(userInfo);
-    }  
+    }
 
     const fetchLikers = async () => {
       try {
@@ -161,7 +161,7 @@ const SearchResultArea = () => {
         );
         if (response.data.success) {
           let data = response.data.data;
-          let likees_ids = data.map((item: any) => item.likee?.id);
+          let likees_ids = data.map((item: any) => item.likee?._id);
           setLikees(likees_ids);
         } else {
           console.log(response.data.message);
@@ -242,7 +242,7 @@ const SearchResultArea = () => {
     } catch (err: any) {
       console.log(err.response?.data?.message);
     }
-  }
+  };
 
   return (
     <>
@@ -272,12 +272,15 @@ const SearchResultArea = () => {
                             if (e.target.checked) {
                               setFormData((prev: any) => ({
                                 ...prev,
-                                gender: [...(prev.gender || []), item]
+                                gender: [...(prev.gender || []), item],
                               }));
                             } else {
                               setFormData((prev: any) => ({
                                 ...prev,
-                                gender: prev.gender?.filter((g: string) => g !== item) || []
+                                gender:
+                                  prev.gender?.filter(
+                                    (g: string) => g !== item
+                                  ) || [],
                               }));
                             }
                           }}
@@ -297,24 +300,36 @@ const SearchResultArea = () => {
                     {[
                       { min: 18, max: 30 },
                       { min: 30, max: 50 },
-                      { min: 50, max: 99 }
+                      { min: 50, max: 99 },
                     ].map((range, i) => (
-                      <div className="form-check col-6 col-sm-4 col-md-3 col-lg-2" key={i}>
+                      <div
+                        className="form-check col-6 col-sm-4 col-md-3 col-lg-2"
+                        key={i}
+                      >
                         <input
                           className="form-check-input"
                           id={`checkbox-age-${i}`}
                           type="checkbox"
-                          checked={formData?.age?.some(a => a.min === range.min && a.max === range.max)}
+                          checked={formData?.age?.some(
+                            (a) => a.min === range.min && a.max === range.max
+                          )}
                           onChange={(e) => {
                             if (e.target.checked) {
                               setFormData((prev: any) => ({
                                 ...prev,
-                                age: [...(prev.age || []), range]
+                                age: [...(prev.age || []), range],
                               }));
                             } else {
                               setFormData((prev: any) => ({
                                 ...prev,
-                                age: prev.age?.filter((a: any) => !(a.min === range.min && a.max === range.max)) || []
+                                age:
+                                  prev.age?.filter(
+                                    (a: any) =>
+                                      !(
+                                        a.min === range.min &&
+                                        a.max === range.max
+                                      )
+                                  ) || [],
                               }));
                             }
                           }}
@@ -334,36 +349,44 @@ const SearchResultArea = () => {
                       <h6>{criteria?.question} </h6>
                       <div className="row mb-4">
                         {criteria?.answers.map((item, i) => (
-                          <div className="form-check col-6 col-sm-4 col-md-3 col-lg-2" key={i}>
+                          <div
+                            className="form-check col-6 col-sm-4 col-md-3 col-lg-2"
+                            key={i}
+                          >
                             <input
                               className="form-check-input"
                               id={`checkbox-${criteria.question}-${i}`}
                               type="checkbox"
-                              checked={formData?.criteria?.[criteria._id]?.includes(i)}
+                              checked={formData?.criteria?.[
+                                criteria._id
+                              ]?.includes(i)}
                               onChange={(e) => {
-                                let criteria_answer = formData?.criteria?.[criteria._id] || [];
-                                if (e.target.checked) {                                 
+                                let criteria_answer =
+                                  formData?.criteria?.[criteria._id] || [];
+                                if (e.target.checked) {
                                   if (!criteria_answer.includes(i)) {
                                     criteria_answer.push(i);
                                   }
-                                  
+
                                   setFormData((prev: any) => ({
                                     ...prev,
                                     criteria: {
                                       ...prev.criteria,
-                                      [criteria._id]: criteria_answer
-                                    }
+                                      [criteria._id]: criteria_answer,
+                                    },
                                   }));
                                 } else {
                                   if (criteria_answer.includes(i)) {
-                                    criteria_answer = criteria_answer.filter((val) => val !== i);
+                                    criteria_answer = criteria_answer.filter(
+                                      (val) => val !== i
+                                    );
                                   }
                                   setFormData((prev: any) => ({
                                     ...prev,
                                     criteria: {
                                       ...prev.criteria,
-                                      [criteria._id]: criteria_answer
-                                    }
+                                      [criteria._id]: criteria_answer,
+                                    },
                                   }));
                                 }
                               }}
@@ -411,9 +434,12 @@ const SearchResultArea = () => {
                         </button>
                       </div> */}
                     </>
-                  ))}              
+                  ))}
 
-                  <a className={`btn btn-primary rounded-pill`} onClick={handleSearch}>
+                  <a
+                    className={`btn btn-primary rounded-pill`}
+                    onClick={handleSearch}
+                  >
                     Search
                   </a>
                 </form>
@@ -421,10 +447,13 @@ const SearchResultArea = () => {
 
               <div className="top-products-area">
                 <div className="container mb-3">
-                  {userList.length > 0 ?                   
-                      <p className="mb-2 fz-12">{userList.length} candidates found</p>:
-                      <p className="mb-2 fz-12">No candidates found</p>
-                  }
+                  {userList.length > 0 ? (
+                    <p className="mb-2 fz-12">
+                      {userList.length} candidates found
+                    </p>
+                  ) : (
+                    <p className="mb-2 fz-12">No candidates found</p>
+                  )}
                   <div className="row g-3">
                     {userList
                       .filter((user) => user.id !== userInfo.id)

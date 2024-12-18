@@ -1,6 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useGlobalContext } from "@/app/layout";
+import axios from "axios";
 
 const shop_data: any[] = [
   {
@@ -105,10 +107,48 @@ const shop_data: any[] = [
 ];
 
 const SearchResultArea = () => {
-  const [inputValue, setInputValue] = useState("Affan template");
+  const { userId } = useGlobalContext();
+  const [likees, setLikees] = useState<any[]>([]); // users who i liked
 
-  const handleChange = (event: any) => {
-    setInputValue(event.target.value);
+  useEffect(() => {
+    const fetchLikees = async () => {
+      try {
+        const response = await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/like/get/likees`,
+          {
+            liker_id: userId,
+          }
+        );
+        if (response.data.success) {
+          let data = response.data.data;
+          setLikees(data);
+        } else {
+          console.log(response.data.message);
+        }
+      } catch (err: any) {
+        console.log(err.response?.data?.message);
+      }
+    };
+    fetchLikees();
+  }, [userId]);
+
+  const handleUnLikeUser = async (likee_id: string) => {
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/like/delete`,
+        {
+          liker_id: userId,
+          likee_id: likee_id,
+        }
+      );
+      if (response.data.result) {
+        setLikees((prevLikees) => prevLikees.filter((id) => id !== likee_id));
+      } else {
+        console.log(response.data.message);
+      }
+    } catch (err: any) {
+      console.log(err.response?.data?.message);
+    }
   };
 
   return (
@@ -148,7 +188,7 @@ const SearchResultArea = () => {
                       aria-controls="pwa"
                       aria-selected="false"
                     >
-                      Super Likes
+                      Mutual Likes
                     </button>
                   </li>
                 </ul>
@@ -161,42 +201,56 @@ const SearchResultArea = () => {
                     aria-labelledby="bootstrap-tab"
                   >
                     <div className="row g-3">
-                      {shop_data.map((item, i) => (
-                        <div key={i} className="col-6 col-sm-4 col-lg-3">
-                          <div className="card single-product-card ">
-                            <div className="card-body p-3 text-center">
-                              {/* <!-- Product Thumbnail --> */}
-                              <Link
-                                className="product-thumbnail d-block"
-                                href="/member-profile"
-                              >
-                                <img src={item.img} alt={item.title} />
-                              </Link>
-                              {/* <!-- Product Title --> */}
-                              <Link
-                                className="product-title d-block text-truncate"
-                                href="/member-profile"
-                              >
-                                {item.title}
-                              </Link>
-                              <div className="text-center">
-                                <a
-                                  className={`btn btn-${
-                                    item.btn_color
-                                  } rounded-pill btn-sm ${
-                                    item.btn_color === "danger"
-                                      ? "disabled"
-                                      : ""
-                                  }`}
-                                  href="#"
+                      {likees
+                        .filter((item) => !item.mutual)
+                        .map((item, i) => (
+                          <div key={i} className="col-6 col-sm-4 col-lg-3">
+                            <div className="card single-product-card ">
+                              <div className="card-body p-3 text-center">
+                                {/* <!-- Product Thumbnail --> */}
+                                <Link
+                                  className="product-thumbnail d-block"
+                                  href={`/member-profile?opponent_id=${item.likee?._id}`}
                                 >
-                                  {item.btn_text}
-                                </a>
+                                  <img
+                                    src={item.likee?.profilePhoto}
+                                    alt={item.likee?.fullName}
+                                  />
+                                </Link>
+                                {/* <!-- Product Title --> */}
+                                <Link
+                                  className="product-title d-block text-truncate"
+                                  href={`/member-profile?opponent_id=${item.likee?._id}`}
+                                >
+                                  {item.likee?.fullName}
+                                </Link>
+                                <div className="text-center">
+                                  <a
+                                    className={`btn btn-${
+                                      item.btn_color
+                                    } rounded-pill btn-sm ${
+                                      item.btn_color === "danger"
+                                        ? "disabled"
+                                        : ""
+                                    }`}
+                                    href="#"
+                                    onClick={() =>
+                                      (window.location.href = `/chat?opponent_id=${item.likee?._id}`)
+                                    }
+                                  >
+                                    <i
+                                      className="bi bi-chat-dots mr-5"
+                                      style={{
+                                        color: "#f1b10f",
+                                        fontSize: "20px",
+                                      }}
+                                    ></i>
+                                  </a>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
                     </div>
                   </div>
 
@@ -207,42 +261,56 @@ const SearchResultArea = () => {
                     aria-labelledby="pwa-tab"
                   >
                     <div className="row g-3">
-                      {shop_data.map((item, i) => (
-                        <div key={i} className="col-6 col-sm-4 col-lg-3">
-                          <div className="card single-product-card">
-                            <div className="card-body p-3 text-center">
-                              {/* <!-- Product Thumbnail --> */}
-                              <Link
-                                className="product-thumbnail d-block"
-                                href="/member-profile"
-                              >
-                                <img src={item.img} alt={item.title} />
-                              </Link>
-                              {/* <!-- Product Title --> */}
-                              <Link
-                                className="product-title d-block text-truncate"
-                                href="/member-profile"
-                              >
-                                {item.title}
-                              </Link>
-                              <div className="text-center">
-                                <a
-                                  className={`btn btn-${
-                                    item.btn_color
-                                  } rounded-pill btn-sm ${
-                                    item.btn_color === "danger"
-                                      ? "disabled"
-                                      : ""
-                                  }`}
-                                  href="#"
+                      {likees
+                        .filter((item) => item.mutual)
+                        .map((item, i) => (
+                          <div key={i} className="col-6 col-sm-4 col-lg-3">
+                            <div className="card single-product-card ">
+                              <div className="card-body p-3 text-center">
+                                {/* <!-- Product Thumbnail --> */}
+                                <Link
+                                  className="product-thumbnail d-block"
+                                  href={`/member-profile?opponent_id=${item.likee?._id}`}
                                 >
-                                  {item.btn_text}
-                                </a>
+                                  <img
+                                    src={item.likee?.profilePhoto}
+                                    alt={item.likee?.fullName}
+                                  />
+                                </Link>
+                                {/* <!-- Product Title --> */}
+                                <Link
+                                  className="product-title d-block text-truncate"
+                                  href={`/member-profile?opponent_id=${item.likee?._id}`}
+                                >
+                                  {item.likee?.fullName}
+                                </Link>
+                                <div className="text-center">
+                                  <a
+                                    className={`btn btn-${
+                                      item.btn_color
+                                    } rounded-pill btn-sm ${
+                                      item.btn_color === "danger"
+                                        ? "disabled"
+                                        : ""
+                                    }`}
+                                    href="#"
+                                    onClick={() =>
+                                      (window.location.href = `/chat?opponent_id=${item.likee?._id}`)
+                                    }
+                                  >
+                                    <i
+                                      className="bi bi-chat-dots mr-5"
+                                      style={{
+                                        color: "#f1b10f",
+                                        fontSize: "20px",
+                                      }}
+                                    ></i>
+                                  </a>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
                     </div>
                   </div>
                 </div>

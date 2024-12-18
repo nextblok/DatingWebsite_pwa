@@ -31,6 +31,7 @@ export default function RootLayout({
 }>) {
   // Define global state variables
   const [userInfo, setUserInfo] = useState<UserInfo>({} as UserInfo);
+  const [userId, setUserId] = useState<string>("");
 
   useEffect(() => {
     const userInfoString = localStorage.getItem("userInfo");
@@ -39,6 +40,7 @@ export default function RootLayout({
     if (userInfoString) {
       userInfo = JSON.parse(userInfoString);
       setUserInfo(userInfo);
+      setUserId(userInfo.id);
     }
   }, []);
 
@@ -63,6 +65,7 @@ export default function RootLayout({
   // Global state object
   const globalState = {
     userInfo,
+    userId,
     socket,
   };
 
