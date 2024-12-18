@@ -397,12 +397,12 @@ const ChatArea = () => {
                 />
 
                 {/* <!-- Emoji --> */}
-                <button className="btn btn-emoji mx-2" type="button">
+                {/* <button className="btn btn-emoji mx-2" type="button">
                   <i className="bi bi-emoji-smile"></i>
-                </button>
+                </button> */}
 
                 {/* <!-- Add File --> */}
-                <div className="dropup me-2">
+                {/* <div className="dropup me-2">
                   <button
                     onClick={() => setFileOpen(!fileOpen)}
                     className={`btn btn-add-file dropdown-toggle ${
@@ -449,7 +449,7 @@ const ChatArea = () => {
                       </a>
                     </li>
                   </ul>
-                </div>
+                </div> */}
 
                 {/* <!-- Send --> */}
                 <button

@@ -43,7 +43,13 @@ const HeaderTwo = () => {
                   id="settingTriggerBtn"
                 >
                   <i className="bi bi-bell"></i>
-                  <span></span>
+                  <span
+                    className="badge bg-success rounded-pill "
+                    onClick={handleShowSetting}
+                    style={{ cursor: "pointer" }}
+                  >
+                    3+
+                  </span>
                 </div>
               </div>
 
