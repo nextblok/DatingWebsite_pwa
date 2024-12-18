@@ -66,11 +66,14 @@ export default function RootLayout({
     socket,
   };
 
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
   // Function to add a new notification
   const addNotification = (notification: Notification) => {
     const notifications = getNotifications();
     notifications.unshift(notification);
     localStorage.setItem("notifications", JSON.stringify(notifications));
+    setNotifications(notifications);
   };
 
   // Function to get all notifications
@@ -82,11 +85,12 @@ export default function RootLayout({
   // Function to clear all notifications
   const clearNotifications = () => {
     localStorage.setItem("notifications", JSON.stringify([]));
+    setNotifications([]);
   };
 
   // Add notification functions to global state
   Object.assign(globalState, {
-    getNotifications,
+    notifications,
     clearNotifications,
   });
 

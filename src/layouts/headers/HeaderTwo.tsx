@@ -8,17 +8,15 @@ const HeaderTwo = () => {
   if (typeof window !== "undefined") {
     require("bootstrap/dist/js/bootstrap");
   }
-  const { userInfo, getNotifications, clearNotifications } = useGlobalContext();
+  const { userInfo, clearNotifications, notifications } = useGlobalContext();
 
   const [showPopup, setShowPopup] = useState(false);
-  const [notifications, setNotifications] = useState(getNotifications());
   const handleShowSetting = () => {
     setShowPopup(!showPopup);
   };
 
   const handleClearNotifications = () => {
     clearNotifications();
-    setNotifications([]);
     setShowPopup(false);
   };
   return (
