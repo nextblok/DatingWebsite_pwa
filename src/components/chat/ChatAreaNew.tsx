@@ -50,7 +50,6 @@ const ChatArea = () => {
     if (userInfoString) {
       userInfo = JSON.parse(userInfoString);
       setUserInfo(userInfo);
-      
     }
   }, []);
 
@@ -71,12 +70,12 @@ const ChatArea = () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       } as Chat);
-    // Scroll chat area to bottom when new message arrives
-    const chatWrapper = document.getElementById('chat-wrapper');
-    console.log(chatWrapper)
-    if (chatWrapper) {
-      chatWrapper.scrollTop = 500;
-    }
+      // Scroll chat area to bottom when new message arrives
+      const chatWrapper = document.getElementById("chat-wrapper");
+      console.log(chatWrapper);
+      if (chatWrapper) {
+        chatWrapper.scrollTop = 500;
+      }
     });
 
     setSocketInitialized(true);
@@ -381,7 +380,7 @@ const ChatArea = () => {
 
       <div className="chat-footer">
         <div className="container h-100">
-          <div className="chat-footer-content h-100 d-flex align-items-center"> 
+          <div className="chat-footer-content h-100 d-flex align-items-center">
             {blocked ? (
               <div className="text-center">
                 <p>You can not chat with this user</p>
@@ -390,77 +389,77 @@ const ChatArea = () => {
               <form onSubmit={(e) => e.preventDefault()}>
                 {/* <!-- Message --> */}
                 <input
-                className="form-control"
-                type="text"
-                placeholder="Type here..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-              />
+                  className="form-control"
+                  type="text"
+                  placeholder="Type here..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                />
 
-              {/* <!-- Emoji --> */}
-              <button className="btn btn-emoji mx-2" type="button">
-                <i className="bi bi-emoji-smile"></i>
-              </button>
-
-              {/* <!-- Add File --> */}
-              <div className="dropup me-2">
-                <button
-                  onClick={() => setFileOpen(!fileOpen)}
-                  className={`btn btn-add-file dropdown-toggle ${
-                    fileOpen ? "show" : ""
-                  }`}
-                  type="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  <i className="bi bi-plus-circle"></i>
+                {/* <!-- Emoji --> */}
+                <button className="btn btn-emoji mx-2" type="button">
+                  <i className="bi bi-emoji-smile"></i>
                 </button>
-                <ul
-                  className={`dropdown-menu ${fileOpen ? "show" : ""}`}
-                  style={{
-                    position: "absolute",
-                    inset: "auto auto 0px 0px",
-                    margin: "0px",
-                    transform: "translate(0px, -34px)",
-                  }}
-                >
-                  <li>
-                    <a href="#">
-                      <i className="bi bi-files"></i>Files
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#">
-                      <i className="bi bi-mic"></i>Audio
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#">
-                      <i className="bi bi-file-earmark"></i>Document
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#">
-                      <i className="bi bi-file-bar-graph"></i>Pull
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#">
-                      <i className="bi bi-geo-alt"></i>Location
-                    </a>
-                  </li>
-                </ul>
-              </div>
 
-              {/* <!-- Send --> */}
-              <button
-                className="btn btn-submit"
-                type="submit"
-                onClick={sendMessage}
-              >
-                <i className="bi bi-cursor"></i>
-              </button>
-            </form>
+                {/* <!-- Add File --> */}
+                <div className="dropup me-2">
+                  <button
+                    onClick={() => setFileOpen(!fileOpen)}
+                    className={`btn btn-add-file dropdown-toggle ${
+                      fileOpen ? "show" : ""
+                    }`}
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    <i className="bi bi-plus-circle"></i>
+                  </button>
+                  <ul
+                    className={`dropdown-menu ${fileOpen ? "show" : ""}`}
+                    style={{
+                      position: "absolute",
+                      inset: "auto auto 0px 0px",
+                      margin: "0px",
+                      transform: "translate(0px, -34px)",
+                    }}
+                  >
+                    <li>
+                      <a href="#">
+                        <i className="bi bi-files"></i>Files
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#">
+                        <i className="bi bi-mic"></i>Audio
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#">
+                        <i className="bi bi-file-earmark"></i>Document
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#">
+                        <i className="bi bi-file-bar-graph"></i>Pull
+                      </a>
+                    </li>
+                    <li>
+                      <a href="#">
+                        <i className="bi bi-geo-alt"></i>Location
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+
+                {/* <!-- Send --> */}
+                <button
+                  className="btn btn-submit"
+                  type="submit"
+                  onClick={sendMessage}
+                >
+                  <i className="bi bi-cursor"></i>
+                </button>
+              </form>
             )}
           </div>
         </div>

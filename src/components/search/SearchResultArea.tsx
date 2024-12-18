@@ -334,7 +334,7 @@ const SearchResultArea = () => {
                       <h6>{criteria?.question} </h6>
                       <div className="row mb-4">
                         {criteria?.answers.map((item, i) => (
-                          <div className="form-check col-6 col-sm-4 col-md-3 col-lg-2">
+                          <div className="form-check col-6 col-sm-4 col-md-3 col-lg-2" key={i}>
                             <input
                               className="form-check-input"
                               id={`checkbox-${criteria.question}-${i}`}
