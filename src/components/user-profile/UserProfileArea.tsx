@@ -257,20 +257,7 @@ const UserProfileArea = () => {
 
                 <div className="form-group mb-3">
                   <label className="form-label">Birthday</label>
-                  <div className="row">
-                    <div className="col-4">
-                      <select 
-                        className="form-control"
-                        id="birthYear"
-                        value={formData?.birthYear}
-                        onChange={handleChange}
-                      >
-                        <option value="">Year</option>
-                        {Array.from({length: 100}, (_, i) => new Date().getFullYear() - i).map(year => (
-                          <option key={year} value={year}>{year}</option>
-                        ))}
-                      </select>
-                    </div>
+                  <div className="row">                    
                     <div className="col-4">
                       <select
                         className="form-control"
@@ -294,6 +281,19 @@ const UserProfileArea = () => {
                         <option value="">Day</option>
                         {Array.from({length: 31}, (_, i) => i + 1).map(day => (
                           <option key={day} value={day}>{day}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="col-4">
+                      <select 
+                        className="form-control"
+                        id="birthYear"
+                        value={formData?.birthYear}
+                        onChange={handleChange}
+                      >
+                        <option value="">Year</option>
+                        {Array.from({length: 100}, (_, i) => new Date().getFullYear() - i).map(year => (
+                          <option key={year} value={year}>{year}</option>
                         ))}
                       </select>
                     </div>
