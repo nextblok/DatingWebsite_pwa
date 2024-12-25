@@ -139,8 +139,8 @@ const ChatArea = () => {
     index: number
   ) => {
     return sender === userInfo.id ? (
-      <>
-        {/* <!-- Single Chat Item --> */}
+    
+     
         <div className="single-chat-item outgoing" key={index}>
           {/* <!-- User Avatar --> */}
           <div className="user-avatar mt-1">
@@ -201,9 +201,9 @@ const ChatArea = () => {
             </div>
           </div>
         </div>
-      </>
+     
     ) : (
-      <>
+     
         <div className="single-chat-item" key={index}>
           <div className="user-avatar mt-1">
             <span className="name-first-letter">A</span>
@@ -258,7 +258,7 @@ const ChatArea = () => {
             </div>
           </div>
         </div>
-      </>
+     
     );
   };
 
