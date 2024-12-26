@@ -62,13 +62,6 @@ export default function RootLayout({
     setSocketInitialized(true);
   }, [userInfo]);
 
-  // Global state object
-  const globalState = {
-    userInfo,
-    userId,
-    socket,
-  };
-
   const [notifications, setNotifications] = useState<Notification[]>([]);
 
   // Function to add a new notification
@@ -91,11 +84,15 @@ export default function RootLayout({
     setNotifications([]);
   };
 
-  // Add notification functions to global state
-  Object.assign(globalState, {
+
+  // Global state object
+  const globalState = {
+    userInfo,
+    userId,
+    socket,
     notifications,
     clearNotifications,
-  });
+  };
 
   return (
     <html id="previewPage" data-theme="light" lang="en">

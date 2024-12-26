@@ -1,17 +1,14 @@
 import HeaderFive from "@/layouts/headers/HeaderFive";
 import React from "react";
-import ChatArea from "./ChatArea";
 import ChatAreaNew from "./ChatAreaNew";
-import App from "./App";
-// import * as serviceWorker from './serviceWorker';
+import VideoCall from "./VideoCall";
+import './index.css';
 
 const Chat = () => {
-	// serviceWorker.unregister();
 	return (
 		<>
-			{/* <HeaderFive /> */}
-			{/* <ChatAreaNew /> */}
-			<App />
+			<ChatAreaNew />
+			<VideoCall />
 		</>
 	);
 };

@@ -1,19 +1,13 @@
 "use client";
-import React, { useEffect, useState, useRef, Suspense } from "react";
+import React, { useEffect, useState, useRef, Suspense, useCallback } from "react";
 import { io } from "socket.io-client";
 import Peer from "simple-peer";
 import Rodal from "rodal";
-import { Howl } from "howler";
-
-import Navigation from "./Components/Navigation/Navigation";
-import Footer from "./Components/Footer/Footer";
 
 import "rodal/lib/rodal.css";
 
 import camera from "./Icons/camera.svg";
 import camerastop from "./Icons/camera-stop.svg";
-import microphone from "./Icons/microphone.svg";
-import microphonestop from "./Icons/microphone-stop.svg";
 import share from "./Icons/share.svg";
 import hangup from "./Icons/hang-up.svg";
 import fullscreen from "./Icons/fullscreen.svg";
@@ -21,12 +15,12 @@ import minimize from "./Icons/minimize.svg";
 // import ringtone from "./Sounds/ringtone.mp3";
 // import message from "./Sounds/message.mp3";
 import emojis from "./Components/emoji.json";
+import { useGlobalContext } from "@/app/layout";
 
 const Watermark = React.lazy(() => import("./Components/Watermark/Watermark"));
 
 const App = () => {
   const [yourID, setYourID] = useState("");
-  const [users, setUsers] = useState({});
   const [stream, setStream] = useState();
   const [receivingCall, setReceivingCall] = useState(false);
   const [caller, setCaller] = useState("");
@@ -40,161 +34,140 @@ const App = () => {
   const [audioMuted, setAudioMuted] = useState(false);
   const [videoMuted, setVideoMuted] = useState(false);
   const [isfullscreen, setFullscreen] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   const userVideo = useRef();
   const partnerVideo = useRef();
-  const socket = io.connect("http://localhost:7000");
-
+  const socket = useRef(io(process.env.NEXT_PUBLIC_SOCKET_URL));
+  // const socket = useRef(io('http://localhost:7000'));
   const myPeer = useRef();
 
-  // texchat
-  const chatboxRef = useRef(null);
-  const chatinputRef = useRef(null);
-  const [messages, setMessages] = useState([]);
-  const [showEmojiBox, setShowEmojiBox] = useState(false);
+  const { userId } = useGlobalContext();
+  const [opponentId, setOpponentId] = useState("");
+  useEffect(() => {
+    let param = new URLSearchParams(window.location.search).get("opponent_id");
+    if (param) {
+      setOpponentId(param);
+      setReceiverID(param);
+    }
+
+    setYourID(userId);
+  }, [userId]);
+
 
   useEffect(() => {
-    chatboxRef.current.scrollTop = chatboxRef.current.scrollHeight;
-  }, [messages]);
-  let devenv = false;
+    if (!userId) return;
 
-
-  useEffect(() => {
-    socket.on("yourID", (id) => {
-      alert(id)
-      setYourID(id);
-    });
-    socket.on("allUsers", (users) => {
-      setUsers(users);
-    });
-
-    socket.on("hey", (data) => {
+    socket.current.emit('register', userId);
+    socket.current.on("hey", (data) => {
+      console.log('heyheyheyhey')
       setReceivingCall(true);
-      ringtoneSound.play();
       setCaller(data.from);
       setCallerSignal(data.signal);
     });
 
-    socket.on("receiveMessage", (text) => {
+    socket.current.on("receiveMessage", (text) => {
       handleReceiveMessage(text);
     });
-  }, []);
+  }, [userId]);
 
-  function callPeer(id) {
-    if (id !== "" && users[id] && id !== yourID) {
-      window.navigator.mediaDevices
-        .getUserMedia({ video: true, audio: true })
-        .then((stream) => {
-          setStream(stream);
-          setCallingFriend(true);
-          setCaller(id);
-          if (userVideo.current) {
-            userVideo.current.srcObject = stream;
-          }
-          const peer = new Peer({
-            initiator: true,
-            trickle: false,
-            config: {
-              iceServers: [
-                // {
-                //     urls: "stun:numb.viagenie.ca",
-                //     username: "sultan1640@gmail.com",
-                //     credential: "98376683"
-                // },
-                // {
-                //     urls: "turn:numb.viagenie.ca",
-                //     username: "sultan1640@gmail.com",
-                //     credential: "98376683"
-                // }
-                { url: "stun:stun01.sipphone.com" },
-                { url: "stun:stun.ekiga.net" },
-                { url: "stun:stun.fwdnet.net" },
-                { url: "stun:stun.ideasip.com" },
-                { url: "stun:stun.iptel.org" },
-                { url: "stun:stun.rixtelecom.se" },
-                { url: "stun:stun.schlund.de" },
-                { url: "stun:stun.l.google.com:19302" },
-                { url: "stun:stun1.l.google.com:19302" },
-                { url: "stun:stun2.l.google.com:19302" },
-                { url: "stun:stun3.l.google.com:19302" },
-                { url: "stun:stun4.l.google.com:19302" },
-                { url: "stun:stunserver.org" },
-                { url: "stun:stun.softjoys.com" },
-                { url: "stun:stun.voiparound.com" },
-                { url: "stun:stun.voipbuster.com" },
-                { url: "stun:stun.voipstunt.com" },
-                { url: "stun:stun.voxgratia.org" },
-                { url: "stun:stun.xten.com" },
-                {
-                  url: "turn:numb.viagenie.ca",
-                  credential: "muazkh",
-                  username: "webrtc@live.com",
-                },
-                {
-                  url: "turn:192.158.29.39:3478?transport=udp",
-                  credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
-                  username: "28224511:1379330808",
-                },
-                {
-                  url: "turn:192.158.29.39:3478?transport=tcp",
-                  credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
-                  username: "28224511:1379330808",
-                },
-              ],
-            },
-            stream: stream,
-          });
-
-          myPeer.current = peer;
-
-          peer.on("signal", (data) => {
-            socket.current.emit("callUser", {
-              userToCall: id,
-              signalData: data,
-              from: yourID,
-            });
-          });
-
-          peer.on("stream", (stream) => {
-            if (partnerVideo.current) {
-              partnerVideo.current.srcObject = stream;
-            }
-          });
-
-          peer.on("error", (err) => {
-            endCall();
-          });
-
-          socket.current.on("callAccepted", (signal) => {
-            setCallAccepted(true);
-            peer.signal(signal);
-          });
-
-          socket.current.on("close", () => {
-            window.location.reload();
-          });
-
-          socket.current.on("rejected", () => {
-            window.location.reload();
-          });
-        })
-        .catch(() => {
-          setModalMessage(
-            "You cannot place/ receive a call without granting video and audio permissions! Please change your settings."
-          );
-          setModalVisible(true);
+  function callPeer() {
+    window.navigator.mediaDevices
+      .getUserMedia({ video: true, audio: true })
+      .then((stream) => {
+        setStream(stream);
+        setCallingFriend(true);
+        setCaller(opponentId);
+        if (userVideo.current) {
+          userVideo.current.srcObject = stream;
+        }
+        const peer = new Peer({
+          initiator: true,
+          trickle: false,
+          config: {
+            iceServers: [
+              { url: "stun:stun01.sipphone.com" },
+              { url: "stun:stun.ekiga.net" },
+              { url: "stun:stun.fwdnet.net" },
+              { url: "stun:stun.ideasip.com" },
+              { url: "stun:stun.iptel.org" },
+              { url: "stun:stun.rixtelecom.se" },
+              { url: "stun:stun.schlund.de" },
+              { url: "stun:stun.l.google.com:19302" },
+              { url: "stun:stun1.l.google.com:19302" },
+              { url: "stun:stun2.l.google.com:19302" },
+              { url: "stun:stun3.l.google.com:19302" },
+              { url: "stun:stun4.l.google.com:19302" },
+              { url: "stun:stunserver.org" },
+              { url: "stun:stun.softjoys.com" },
+              { url: "stun:stun.voiparound.com" },
+              { url: "stun:stun.voipbuster.com" },
+              { url: "stun:stun.voipstunt.com" },
+              { url: "stun:stun.voxgratia.org" },
+              { url: "stun:stun.xten.com" },
+              {
+                url: "turn:numb.viagenie.ca",
+                credential: "muazkh",
+                username: "webrtc@live.com",
+              },
+              {
+                url: "turn:192.158.29.39:3478?transport=udp",
+                credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
+                username: "28224511:1379330808",
+              },
+              {
+                url: "turn:192.158.29.39:3478?transport=tcp",
+                credential: "JZEOEt2V3Qb0y27GRntt2u2PAYA=",
+                username: "28224511:1379330808",
+              },
+            ],
+          },
+          stream: stream,
         });
-    } else {
-      setModalMessage(
-        "We think the username entered is wrong. Please check again and retry!"
-      );
-      setModalVisible(true);
-      return;
-    }
+
+        myPeer.current = peer;
+
+        peer.on("signal", (data) => {
+          socket.current.emit("callUser", {
+            userToCall: opponentId,
+            signalData: data,
+            from: yourID,
+          });
+        });
+
+        peer.on("stream", (stream) => {
+          if (partnerVideo.current) {
+            partnerVideo.current.srcObject = stream;
+          }
+        });
+
+        peer.on("error", (err) => {
+          endCall();
+        });
+
+
+        socket.current.on("callAccepted", (signal) => {
+          console.log('callaccepted')
+          setCallAccepted(true);
+          peer.signal(signal);
+        });
+
+        socket.current.on("close", () => {
+          window.location.reload();
+        });
+
+        socket.current.on("rejected", () => {
+          window.location.reload();
+        });
+      })
+      .catch(() => {
+        setModalMessage(
+          "You cannot place/ receive a call without granting video and audio permissions! Please change your settings."
+        );
+        setModalVisible(true);
+      });
   }
 
-  function acceptCall() {
+  const acceptCall = useCallback(() => {
     window.navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .then((stream) => {
@@ -235,7 +208,7 @@ const App = () => {
         );
         setModalVisible(true);
       });
-  }
+  }, [caller, callerSignal, setStream, setCallAccepted, setModalMessage, setModalVisible, socket, endCall]);
 
   function rejectCall() {
     setCallRejected(true);
@@ -285,13 +258,11 @@ const App = () => {
   }
 
   function renderLanding() {
-    if (devenv) return "none";
     if (!callRejected && !callAccepted && !callingFriend) return "block";
     return "none";
   }
 
   function renderCall() {
-    if (devenv) return "block";
     if (!callRejected && !callAccepted && !callingFriend) return "none";
     return "block";
   }
@@ -316,13 +287,6 @@ const App = () => {
     return check;
   }
 
-  function showCopiedMessage() {
-    window.navigator.clipboard.writeText(yourID);
-    setCopied(true);
-    setInterval(() => {
-      setCopied(false);
-    }, 1000);
-  }
 
   let UserVideo;
   if (stream) {
@@ -353,7 +317,7 @@ const App = () => {
       <div className="incomingCallContainer">
         <div className="incomingCall flex flex-column">
           <div>
-            <span className="callerID">{caller}</span> is calling you!
+            <span className="callerID">{caller}</span> is calling you
           </div>
           <div className="incomingCallButtons flex">
             <button
@@ -380,13 +344,15 @@ const App = () => {
   if (audioMuted) {
     audioControl = (
       <span className="iconContainer" onClick={() => toggleMuteAudio()}>
-        <img src={microphonestop} alt="Unmute audio" />
+        audioControl
+        <img src="/assets/img/demo-img/sass.png" alt="Unmute audio" width="10px" height="10px" />
       </span>
     );
   } else {
     audioControl = (
       <span className="iconContainer" onClick={() => toggleMuteAudio()}>
-        <img src={microphone} alt="Mute audio" />
+        audioControl
+        <img src="/assets/img/demo-img/npm.png" alt="Mute audio" width="10px" height="10px" />
       </span>
     );
   }
@@ -395,28 +361,23 @@ const App = () => {
   if (videoMuted) {
     videoControl = (
       <span className="iconContainer" onClick={() => toggleMuteVideo()}>
-        <img src={camerastop} alt="Resume video" />
+        videoControl
+        <img src={camerastop} alt="Resume video" width="10px" height="10px" />
       </span>
     );
   } else {
     videoControl = (
       <span className="iconContainer" onClick={() => toggleMuteVideo()}>
+        videoControl
         <img src={camera} alt="Stop audio" />
       </span>
     );
   }
 
-  let screenShare = (
-    <span className="iconContainer" onClick={() => shareScreen()}>
-      <img src={share} alt="Share screen" />
-    </span>
-  );
-  if (isMobileDevice()) {
-    screenShare = <></>;
-  }
 
   let hangUp = (
     <span className="iconContainer" onClick={() => endCall()}>
+      hangUp
       <img src={hangup} alt="End call" />
     </span>
   );
@@ -430,6 +391,7 @@ const App = () => {
           setFullscreen(false);
         }}
       >
+        fullscreen
         <img src={minimize} alt="fullscreen" />
       </span>
     );
@@ -440,53 +402,12 @@ const App = () => {
         onClick={() => {
           setFullscreen(true);
         }}
-      >
+      >fullscreen
         <img src={fullscreen} alt="fullscreen" />
       </span>
     );
   }
 
-  //text chat , input
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter") {
-      console.log("on Enterkey", event.target.value);
-      setMessages([
-        ...messages,
-        {
-          isMe: true,
-          text: event.target.value,
-        },
-      ]);
-      socket.current.emit("sendMessage", {
-        to: caller,
-        text: event.target.value,
-      });
-      event.target.value = "";
-    }
-  };
-
-  const handleToggleEmoji = () => {
-    setShowEmojiBox((prev) => {
-      return !prev;
-    });
-  };
-
-  const handleClickEmoji = (emoji) => {
-    chatinputRef.current.value += emoji;
-  };
-
-  const handleReceiveMessage = (text) => {
-    console.log("received", text);
-    setMessages((prev) => {
-      return [
-        ...prev,
-        {
-          isMe: false,
-          text: text,
-        },
-      ];
-    });
-  };
 
   return (
     <>
@@ -496,55 +417,28 @@ const App = () => {
           height: "100vh",
         }}
       >
-         <div>
-      <main style={{ minHeight: "calc(100% - 302px)" }}>
-        <div className="u-margin-top-xxlarge u-margin-bottom-xxlarge">
-          <div className="o-wrapper-l">
-            <div className="hero flex flex-column">
-              <div>
-                <h1>Your ID: {yourID}</h1>
-                <div className="welcomeText">Video + Voice + Text Calls</div>
-                <div className="descriptionText">
-                  across the Gamebop group for free
+        <div>
+          <main style={{ minHeight: "calc(100% - 302px)" }}>
+            <div className="u-margin-top-xxlarge u-margin-bottom-xxlarge">
+              <div className="o-wrapper-l">
+                <div className="hero flex flex-column">
+                  {/* <div>
+                    <h1>Your ID: {yourID}</h1>
+                    <p>receiverID: {receiverID}</p>
+                  </div> */}
+                  <div className="callBox flex">
+                    <button
+                      onClick={() => callPeer(receiverID.toLowerCase().trim())}
+                      className="primaryButton"
+                    >
+                      Call
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div className="callBox flex">
-                <input
-                  type="text"
-                  placeholder="Friend ID"
-                  value={receiverID}
-                  onChange={(e) => setReceiverID(e.target.value)}
-                  className="form-input"
-                />
-                <button
-                  onClick={() => callPeer(receiverID.toLowerCase().trim())}
-                  className="primaryButton"
-                >
-                  Call
-                </button>
-              </div>
-              <div className="actionText">
-                Send your username ({" "}
-                <span
-                  className={
-                    copied ? "username highlight copied" : "username highlight"
-                  }
-                  onClick={() => {
-                    showCopiedMessage();
-                  }}
-                >
-                  {yourID}
-                </span>
-                ) and wait for their call{" "}
-                <span style={{ fontWeight: 600 }}>OR</span> enter their username
-                and hit call!
-              </div>
             </div>
-          </div>
+          </main>
         </div>
-      </main>
-      <Footer />
-    </div>
         <Rodal
           visible={modalVisible}
           onClose={() => setModalVisible(false)}
@@ -574,69 +468,11 @@ const App = () => {
           </div>
         </div>
 
-        <div className="split_right">
-          <div className="textChatContainer">
-            <div className="chat">
-              <div
-                className="messages"
-                id="chat"
-                ref={chatboxRef}
-                style={{ scrollBehavior: "smooth" }}
-              >
-                {messages.map((message, i) => {
-                  var cn = message.isMe ? "parker" : "stark";
-                  return (
-                    <div className={`message ${cn}`} key={i}>
-                      {message.text}
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="input">
-                {showEmojiBox ? (
-                  <i onClick={handleToggleEmoji}>🔻</i>
-                ) : (
-                  <i onClick={handleToggleEmoji}>😃</i>
-                )}
-                <div style={{ display: showEmojiBox ? "block" : "none" }}>
-                  <div
-                    style={{
-                      position: "absolute",
-                      bottom: "70px",
-                      left: "5px",
-                    }}
-                  >
-                    <div className="grid-container">
-                      {emojis.map((emoji, i) => {
-                        return (
-                          <div
-                            className="grid-item"
-                            onClick={() => handleClickEmoji(emoji)}
-                            key={i}
-                          >
-                            {emoji}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-                <input
-                  placeholder="Type your message here!"
-                  type="text"
-                  onKeyDown={handleKeyDown}
-                  ref={chatinputRef}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="userVideoContainer">{UserVideo}</div>
+        <div className="userVideoContainer">
+          {UserVideo}</div>
         <div className="controlsContainer flex">
           {audioControl}
           {videoControl}
-          {screenShare}
           {fullscreenButton}
           {hangUp}
         </div>
