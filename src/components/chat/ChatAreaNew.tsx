@@ -7,7 +7,7 @@ import Link from "next/link";
 import { io } from "socket.io-client";
 import axios from "axios";
 
-const ChatArea = () => {
+const ChatArea = ({incomingCall}: {incomingCall: boolean}) => {
   interface UserInfo {
     fullName: string;
     role: string;
@@ -339,7 +339,8 @@ const ChatArea = () => {
         setIsVideoOpen={setIsVideoOpen}
       />
       <AudioCallingPopup
-        isAudioOpen={isAudioOpen}
+        // isAudioOpen={isAudioOpen}
+        incomingCall={incomingCall}
         setIsAudioOpen={setIsAudioOpen}
       />
 

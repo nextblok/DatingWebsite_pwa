@@ -11,6 +11,7 @@ import React, {
 	useRef,
 	Suspense,
 	useCallback,
+	useMemo,
 } from "react";
 import { io } from "socket.io-client";
 import Peer from "simple-peer";
@@ -44,6 +45,7 @@ const Chat = () => {
 	const [videoMuted, setVideoMuted] = useState(false);
 	const [isfullscreen, setFullscreen] = useState(false);
 
+
 	const userVideo = useRef();
 	const partnerVideo = useRef();
 	const socket = useRef(io(process.env.NEXT_PUBLIC_SOCKET_URL));
@@ -71,11 +73,7 @@ const Chat = () => {
 			setReceivingCall(true);
 			setCaller(data.from);
 			setCallerSignal(data.signal);
-		});
-
-		socket.current.on("receiveMessage", (text) => {
-			handleReceiveMessage(text);
-		});
+		});	
 	}, [userId]);
 
 	function callPeer() {
@@ -286,34 +284,11 @@ const Chat = () => {
 		);
 	}
 
-	let incomingCall;
-	if (receivingCall && !callAccepted && !callRejected) {
-		incomingCall = (
-			<div className="incomingCallContainer">
-				<div className="incomingCall flex flex-column">
-					<div>
-						<span className="callerID">{caller}</span> is calling you
-					</div>
-					<div className="incomingCallButtons flex">
-						<button
-							name="accept"
-							className="alertButtonPrimary"
-							onClick={() => acceptCall()}
-						>
-							Accept
-						</button>
-						<button
-							name="reject"
-							className="alertButtonSecondary"
-							onClick={() => rejectCall()}
-						>
-							Reject
-						</button>
-					</div>
-				</div>
-			</div>
-		);
-	}
+	const incomingCall = useMemo(() => {
+		return receivingCall && !callAccepted && !callRejected;
+	}, [receivingCall, callAccepted, callRejected, caller]);
+	
+	
 
 	let audioControl;
 	if (audioMuted) {
@@ -396,7 +371,7 @@ const Chat = () => {
 
 	return (
 		<>
-			<ChatAreaNew />
+			<ChatAreaNew incomingCall={incomingCall}/>
 
 			<div
 				style={{
