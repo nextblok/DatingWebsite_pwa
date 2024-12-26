@@ -1,5 +1,11 @@
 "use client";
-import React, { useEffect, useState, useRef, Suspense, useCallback } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  Suspense,
+  useCallback,
+} from "react";
 import { io } from "socket.io-client";
 import Peer from "simple-peer";
 import Rodal from "rodal";
@@ -53,13 +59,12 @@ const App = () => {
     setYourID(userId);
   }, [userId]);
 
-
   useEffect(() => {
     if (!userId) return;
 
-    socket.current.emit('register', userId);
+    socket.current.emit("register", userId);
     socket.current.on("hey", (data) => {
-      console.log('heyheyheyhey')
+      console.log("heyheyheyhey");
       setReceivingCall(true);
       setCaller(data.from);
       setCallerSignal(data.signal);
@@ -144,9 +149,8 @@ const App = () => {
           endCall();
         });
 
-
         socket.current.on("callAccepted", (signal) => {
-          console.log('callaccepted')
+          console.log("callaccepted");
           setCallAccepted(true);
           peer.signal(signal);
         });
@@ -208,7 +212,16 @@ const App = () => {
         );
         setModalVisible(true);
       });
-  }, [caller, callerSignal, setStream, setCallAccepted, setModalMessage, setModalVisible, socket, endCall]);
+  }, [
+    caller,
+    callerSignal,
+    setStream,
+    setCallAccepted,
+    setModalMessage,
+    setModalVisible,
+    socket,
+    endCall,
+  ]);
 
   function rejectCall() {
     setCallRejected(true);
@@ -220,27 +233,6 @@ const App = () => {
     myPeer.current.destroy();
     socket.current.emit("close", { to: caller });
     window.location.reload();
-  }
-
-  function shareScreen() {
-    window.navigator.mediaDevices
-      .getDisplayMedia({ cursor: true })
-      .then((screenStream) => {
-        myPeer.current.replaceTrack(
-          stream.getVideoTracks()[0],
-          screenStream.getVideoTracks()[0],
-          stream
-        );
-        userVideo.current.srcObject = screenStream;
-        screenStream.getTracks()[0].onended = () => {
-          myPeer.current.replaceTrack(
-            screenStream.getVideoTracks()[0],
-            stream.getVideoTracks()[0],
-            stream
-          );
-          userVideo.current.srcObject = stream;
-        };
-      });
   }
 
   function toggleMuteAudio() {
@@ -286,7 +278,6 @@ const App = () => {
     );
     return check;
   }
-
 
   let UserVideo;
   if (stream) {
@@ -345,14 +336,24 @@ const App = () => {
     audioControl = (
       <span className="iconContainer" onClick={() => toggleMuteAudio()}>
         audioControl
-        <img src="/assets/img/demo-img/sass.png" alt="Unmute audio" width="10px" height="10px" />
+        <img
+          src="/assets/img/demo-img/sass.png"
+          alt="Unmute audio"
+          width="10px"
+          height="10px"
+        />
       </span>
     );
   } else {
     audioControl = (
       <span className="iconContainer" onClick={() => toggleMuteAudio()}>
         audioControl
-        <img src="/assets/img/demo-img/npm.png" alt="Mute audio" width="10px" height="10px" />
+        <img
+          src="/assets/img/demo-img/npm.png"
+          alt="Mute audio"
+          width="10px"
+          height="10px"
+        />
       </span>
     );
   }
@@ -373,7 +374,6 @@ const App = () => {
       </span>
     );
   }
-
 
   let hangUp = (
     <span className="iconContainer" onClick={() => endCall()}>
@@ -402,12 +402,12 @@ const App = () => {
         onClick={() => {
           setFullscreen(true);
         }}
-      >fullscreen
+      >
+        fullscreen
         <img src={fullscreen} alt="fullscreen" />
       </span>
     );
   }
-
 
   return (
     <>
@@ -468,17 +468,45 @@ const App = () => {
           </div>
         </div>
 
-        <div className="userVideoContainer">
-          {UserVideo}</div>
-        <div className="controlsContainer flex">
+        <div className="userVideoContainer">{UserVideo}</div>
+        <div className="buttonsContainer">
+          <button onClick={toggleMuteAudio} className="controlButton">
+            {audioMuted ? (
+              <img src={camerastop} alt="Unmute audio" />
+            ) : (
+              <img src={camera} alt="Mute audio" />
+            )}
+          </button>
+          
+          <button onClick={toggleMuteVideo} className="controlButton">
+            {videoMuted ? (
+              <img src={camerastop} alt="Unmute video" />
+            ) : (
+              <img src={camera} alt="Mute video" />
+            )}
+          </button>
+
+          <button onClick={() => setFullscreen(!isfullscreen)} className="controlButton">
+            {isfullscreen ? (
+              <img src={minimize} alt="Exit fullscreen" />
+            ) : (
+              <img src={fullscreen} alt="Enter fullscreen" />
+            )}
+          </button>
+
+          <button onClick={endCall} className="controlButton">
+            <img src={hangup} alt="End call" />
+          </button>
+        </div>
+        {/* <div className="controlsContainer flex">
           {audioControl}
           {videoControl}
           {fullscreenButton}
           {hangUp}
-        </div>
+        </div> */}
       </div>
     </>
   );
-}
+};
 
 export default App;
