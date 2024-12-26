@@ -1,7 +1,7 @@
 import Link from "next/link";
 import React from "react";
 
-const VideoCallingPopup = ({ setIsVideoOpen, isVideoOpen }: any) => {
+const VideoCallingPopup = ({  isVideoOpen , acceptCall, rejectCall }: any) => {
 	return (
 		<>
 			<div
@@ -24,7 +24,7 @@ const VideoCallingPopup = ({ setIsVideoOpen, isVideoOpen }: any) => {
 						<i className="bi bi-camera-video text-white"></i>
 					</div>
 
-					<h6 className="mb-5 text-white">Affan is video calling...</h6>
+					<h6 className="mb-5 text-white">Affan is calling...</h6>
 
 					{/* <!-- Button Group --> */}
 					<div className="button-group">
@@ -32,13 +32,15 @@ const VideoCallingPopup = ({ setIsVideoOpen, isVideoOpen }: any) => {
 							className="btn btn-lg btn-danger rounded-pill me-3"
 							id="videoCallDecline"
 							href="#"
-							onClick={() => setIsVideoOpen(false)}
+							onClick={rejectCall}
 						>
 							Decline
 						</a>
 						<Link
 							className="btn btn-lg btn-success rounded-pill ms-3"
-							href="/video-call"
+							// href="/video-call"
+							href="#"
+							onClick={acceptCall}
 						>
 							Accept
 						</Link>

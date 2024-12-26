@@ -7,7 +7,7 @@ import Link from "next/link";
 import { io } from "socket.io-client";
 import axios from "axios";
 
-const ChatArea = ({incomingCall}: {incomingCall: boolean}) => {
+const ChatArea = ({callUser}:any) => {
   interface UserInfo {
     fullName: string;
     role: string;
@@ -139,126 +139,126 @@ const ChatArea = ({incomingCall}: {incomingCall: boolean}) => {
     index: number
   ) => {
     return sender === userInfo.id ? (
-    
-     
-        <div className="single-chat-item outgoing" key={index}>
-          {/* <!-- User Avatar --> */}
-          <div className="user-avatar mt-1">
-            {/* <!-- If the user avatar isnt available, will visible the first letter of the username. --> */}
-            <span className="name-first-letter">A</span>
-            <img src={userInfo.profilePhoto} alt="" />
-          </div>
-          {/* <!-- User Message --> */}
-          <div className="user-message">
-            <div className="message-content">
-              <div className="single-message">
-                <p>{message}</p>
-              </div>
 
-              {/* <!-- Options --> */}
-              <div className="dropstart">
-                <button
-                  className="btn btn-options dropdown-toggle"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false"
-                >
-                  <i className="bi bi-three-dots-vertical"></i>
-                </button>
-                <ul className="dropdown-menu">
-                  <li>
-                    <a href="#">
-                      <i className="bi bi-reply"></i>Reply
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#">
-                      <i className="bi bi-forward"></i>Forward
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#">
-                      <i className="bi bi-trash"></i>Remove
-                    </a>
-                  </li>
-                </ul>
-              </div>
+
+      <div className="single-chat-item outgoing" key={index}>
+        {/* <!-- User Avatar --> */}
+        <div className="user-avatar mt-1">
+          {/* <!-- If the user avatar isnt available, will visible the first letter of the username. --> */}
+          <span className="name-first-letter">A</span>
+          <img src={userInfo.profilePhoto} alt="" />
+        </div>
+        {/* <!-- User Message --> */}
+        <div className="user-message">
+          <div className="message-content">
+            <div className="single-message">
+              <p>{message}</p>
             </div>
-            {/* <!-- Time and Status --> */}
-            <div className="message-time-status">
-              <div className="sent-time">
-                {new Date(date)
-                  .toLocaleTimeString([], {
-                    hour: "numeric",
-                    minute: "2-digit",
-                    hour12: true,
-                  })
-                  .toUpperCase()}
-              </div>
-              {/* <div className="sent-status seen">
+
+            {/* <!-- Options --> */}
+            <div className="dropstart">
+              <button
+                className="btn btn-options dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <i className="bi bi-three-dots-vertical"></i>
+              </button>
+              <ul className="dropdown-menu">
+                <li>
+                  <a href="#">
+                    <i className="bi bi-reply"></i>Reply
+                  </a>
+                </li>
+                <li>
+                  <a href="#">
+                    <i className="bi bi-forward"></i>Forward
+                  </a>
+                </li>
+                <li>
+                  <a href="#">
+                    <i className="bi bi-trash"></i>Remove
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          {/* <!-- Time and Status --> */}
+          <div className="message-time-status">
+            <div className="sent-time">
+              {new Date(date)
+                .toLocaleTimeString([], {
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true,
+                })
+                .toUpperCase()}
+            </div>
+            {/* <div className="sent-status seen">
                 <i className="bi bi-check"></i>
               </div> */}
-            </div>
           </div>
         </div>
-     
+      </div>
+
     ) : (
-     
-        <div className="single-chat-item" key={index}>
-          <div className="user-avatar mt-1">
-            <span className="name-first-letter">A</span>
-            <img src={opponentInfo.profilePhoto} alt="" />
-          </div>
-          <div className="user-message">
-            <div className="message-content">
-              <div className="single-message">
-                <p>{message}</p>
-              </div>
-              <div className="dropstart">
-                <button
-                  className="btn btn-options dropdown-toggle"
-                  type="button"
-                  onClick={(e) => {
-                    e.currentTarget.nextElementSibling?.classList.toggle(
-                      "show"
-                    );
-                  }}
-                >
-                  <i className="bi bi-three-dots-vertical"></i>
-                </button>
-                <ul className="dropdown-menu">
-                  <li>
-                    <a href="#">
-                      <i className="bi bi-reply"></i>Reply
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#">
-                      <i className="bi bi-forward"></i>Forward
-                    </a>
-                  </li>
-                  <li>
-                    <a href="#">
-                      <i className="bi bi-trash"></i>Remove
-                    </a>
-                  </li>
-                </ul>
-              </div>
+
+      <div className="single-chat-item" key={index}>
+        <div className="user-avatar mt-1">
+          <span className="name-first-letter">A</span>
+          <img src={opponentInfo.profilePhoto} alt="" />
+        </div>
+        <div className="user-message">
+          <div className="message-content">
+            <div className="single-message">
+              <p>{message}</p>
             </div>
-            <div className="message-time-status">
-              <div className="sent-time">
-                {new Date(date)
-                  .toLocaleTimeString([], {
-                    hour: "numeric",
-                    minute: "2-digit",
-                    hour12: true,
-                  })
-                  .toUpperCase()}
-              </div>
+            <div className="dropstart">
+              <button
+                className="btn btn-options dropdown-toggle"
+                type="button"
+                onClick={(e) => {
+                  e.currentTarget.nextElementSibling?.classList.toggle(
+                    "show"
+                  );
+                }}
+              >
+                <i className="bi bi-three-dots-vertical"></i>
+              </button>
+              <ul className="dropdown-menu">
+                <li>
+                  <a href="#">
+                    <i className="bi bi-reply"></i>Reply
+                  </a>
+                </li>
+                <li>
+                  <a href="#">
+                    <i className="bi bi-forward"></i>Forward
+                  </a>
+                </li>
+                <li>
+                  <a href="#">
+                    <i className="bi bi-trash"></i>Remove
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="message-time-status">
+            <div className="sent-time">
+              {new Date(date)
+                .toLocaleTimeString([], {
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true,
+                })
+                .toUpperCase()}
             </div>
           </div>
         </div>
-     
+      </div>
+
     );
   };
 
@@ -300,22 +300,22 @@ const ChatArea = ({incomingCall}: {incomingCall: boolean}) => {
             {/* <!-- Call & Video Wrapper --> */}
             <div className="call-video-wrapper d-flex align-items-center">
               {/* <!-- Video Icon --> */}
-              <div className="video-icon me-3">
+              {/* <div className="video-icon me-3">
                 <a
                   className="text-secondary"
-                  onClick={() => setIsVideoOpen(!isVideoOpen)}
+                  onClick={callUser}
                   id="videoCallingButton"
                   href="#"
                 >
                   <i className="bi bi-camera-video"></i>
                 </a>
-              </div>
+              </div> */}
 
               {/* <!-- Call Icon --> */}
               <div className="call-icon me-3">
                 <a
                   className="text-secondary"
-                  onClick={() => setIsAudioOpen(!isAudioOpen)}
+                  onClick={callUser}
                   id="callingButton"
                   href="#"
                 >
@@ -324,23 +324,22 @@ const ChatArea = ({incomingCall}: {incomingCall: boolean}) => {
               </div>
 
               {/* <!-- Info Icon --> */}
-              <div className="info-icon">
+              {/* <div className="info-icon">
                 <a className="text-secondary" href="#">
                   <i className="bi bi-info-circle"></i>
                 </a>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
       </div>
 
-      <VideoCallingPopup
+      {/* <VideoCallingPopup
         isVideoOpen={isVideoOpen}
         setIsVideoOpen={setIsVideoOpen}
-      />
+      /> */}
       <AudioCallingPopup
-        // isAudioOpen={isAudioOpen}
-        incomingCall={incomingCall}
+        isAudioOpen={isAudioOpen}
         setIsAudioOpen={setIsAudioOpen}
       />
 

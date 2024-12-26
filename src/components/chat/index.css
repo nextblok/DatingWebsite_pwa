@@ -382,7 +382,7 @@ body {
 
 .partnerVideoContainer {
   width: 100%;
-  height: calc(100% - 63px);
+  height: 100vh;
   z-index: 99;
   background-color: rgb(0, 0, 0);
 }

@@ -1,10 +1,4 @@
 "use client"
-import HeaderFive from "@/layouts/headers/HeaderFive";
-// import React from "react";
-import ChatAreaNew from "./ChatAreaNew";
-import VideoCall from "./VideoCall";
-import './index.css';
-
 import React, {
 	useEffect,
 	useState,
@@ -13,21 +7,19 @@ import React, {
 	useCallback,
 	useMemo,
 } from "react";
+import ChatAreaNew from "./ChatAreaNew";
+import './index.css';
+
 import { io } from "socket.io-client";
 import Peer from "simple-peer";
 import Rodal from "rodal";
+import Link from "next/link";
 
 import "rodal/lib/rodal.css";
 
-import camera from "./Icons/camera.svg";
-import camerastop from "./Icons/camera-stop.svg";
-import share from "./Icons/share.svg";
-import hangup from "./Icons/hang-up.svg";
-import fullscreen from "./Icons/fullscreen.svg";
-import minimize from "./Icons/minimize.svg";
 import { useGlobalContext } from "@/app/layout";
+import VideoCallingPopup from "@/components/common/VideoCallingPopup";
 
-const Watermark = React.lazy(() => import("./Components/Watermark/Watermark"));
 
 const Chat = () => {
 	const [yourID, setYourID] = useState("");
@@ -38,18 +30,22 @@ const Chat = () => {
 	const [callerSignal, setCallerSignal] = useState();
 	const [callAccepted, setCallAccepted] = useState(false);
 	const [callRejected, setCallRejected] = useState(false);
-	const [receiverID, setReceiverID] = useState("");
 	const [modalVisible, setModalVisible] = useState(false);
 	const [modalMessage, setModalMessage] = useState("");
 	const [audioMuted, setAudioMuted] = useState(false);
 	const [videoMuted, setVideoMuted] = useState(false);
-	const [isfullscreen, setFullscreen] = useState(false);
+	const [isfullscreen, setFullscreen] = useState(true);
 
+	const refreshCallStatus = () => {
+		setCallAccepted(false);
+		setCallRejected(false);
+		setReceivingCall(false);
+		setCallingFriend(false);
+	}
 
 	const userVideo = useRef();
 	const partnerVideo = useRef();
 	const socket = useRef(io(process.env.NEXT_PUBLIC_SOCKET_URL));
-	// const socket = useRef(io('http://localhost:7000'));
 	const myPeer = useRef();
 
 	const { userId } = useGlobalContext();
@@ -58,7 +54,6 @@ const Chat = () => {
 		let param = new URLSearchParams(window.location.search).get("opponent_id");
 		if (param) {
 			setOpponentId(param);
-			setReceiverID(param);
 		}
 
 		setYourID(userId);
@@ -69,11 +64,10 @@ const Chat = () => {
 
 		socket.current.emit("register", userId);
 		socket.current.on("hey", (data) => {
-			console.log("heyheyheyhey");
 			setReceivingCall(true);
 			setCaller(data.from);
 			setCallerSignal(data.signal);
-		});	
+		});
 	}, [userId]);
 
 	function callPeer() {
@@ -157,11 +151,13 @@ const Chat = () => {
 				});
 
 				socket.current.on("close", () => {
-					window.location.reload();
+					refreshCallStatus();
+					// window.location.reload();
 				});
 
 				socket.current.on("rejected", () => {
-					window.location.reload();
+					refreshCallStatus();
+					// window.location.reload();
 				});
 			})
 			.catch(() => {
@@ -204,7 +200,8 @@ const Chat = () => {
 				peer.signal(callerSignal);
 
 				socket.current.on("close", () => {
-					window.location.reload();
+					refreshCallStatus();
+					// window.location.reload();
 				});
 			})
 			.catch(() => {
@@ -227,13 +224,15 @@ const Chat = () => {
 	function rejectCall() {
 		setCallRejected(true);
 		socket.current.emit("rejected", { to: caller });
-		window.location.reload();
+		refreshCallStatus();
+		// window.location.reload();
 	}
 
 	function endCall() {
 		myPeer.current.destroy();
 		socket.current.emit("close", { to: caller });
-		window.location.reload();
+		refreshCallStatus();
+		// window.location.reload();
 	}
 
 	function toggleMuteAudio() {
@@ -249,17 +248,9 @@ const Chat = () => {
 			stream.getVideoTracks()[0].enabled = videoMuted;
 		}
 	}
-
-	function renderLanding() {
-		if (!callRejected && !callAccepted && !callingFriend) return "block";
-		return "none";
-	}
-
-	function renderCall() {
-		// return 'block';
-		if (!callRejected && !callAccepted && !callingFriend) return "none";
-		return "block";
-	}
+	const renderCall = useMemo(() => {
+		return (!callRejected) && (callAccepted || callingFriend);
+	}, [callRejected, callAccepted, callingFriend]);
 
 	let UserVideo;
 	if (stream) {
@@ -284,123 +275,20 @@ const Chat = () => {
 		);
 	}
 
-	const incomingCall = useMemo(() => {
+	const showingCallPopup = useMemo(() => {
 		return receivingCall && !callAccepted && !callRejected;
-	}, [receivingCall, callAccepted, callRejected, caller]);
-	
-	
-
-	let audioControl;
-	if (audioMuted) {
-		audioControl = (
-			<span className="iconContainer" onClick={() => toggleMuteAudio()}>
-				audioControl
-				<img
-					src="/assets/img/demo-img/sass.png"
-					alt="Unmute audio"
-					width="10px"
-					height="10px"
-				/>
-			</span>
-		);
-	} else {
-		audioControl = (
-			<span className="iconContainer" onClick={() => toggleMuteAudio()}>
-				audioControl
-				<img
-					src="/assets/img/demo-img/npm.png"
-					alt="Mute audio"
-					width="10px"
-					height="10px"
-				/>
-			</span>
-		);
-	}
-
-	let videoControl;
-	if (videoMuted) {
-		videoControl = (
-			<span className="iconContainer" onClick={() => toggleMuteVideo()}>
-				videoControl
-				<img src={camerastop} alt="Resume video" width="10px" height="10px" />
-			</span>
-		);
-	} else {
-		videoControl = (
-			<span className="iconContainer" onClick={() => toggleMuteVideo()}>
-				videoControl
-				<img src={camera} alt="Stop audio" />
-			</span>
-		);
-	}
-
-	let hangUp = (
-		<span className="iconContainer" onClick={() => endCall()}>
-			hangUp
-			<img src={hangup} alt="End call" />
-		</span>
-	);
-
-	let fullscreenButton;
-	if (isfullscreen) {
-		fullscreenButton = (
-			<span
-				className="iconContainer"
-				onClick={() => {
-					setFullscreen(false);
-				}}
-			>
-				fullscreen
-				<img src={minimize} alt="fullscreen" />
-			</span>
-		);
-	} else {
-		fullscreenButton = (
-			<span
-				className="iconContainer"
-				onClick={() => {
-					setFullscreen(true);
-				}}
-			>
-				fullscreen
-				<img src={fullscreen} alt="fullscreen" />
-			</span>
-		);
-	}
+	}, [receivingCall, callAccepted, callRejected]);
 
 
 	return (
 		<>
-			<ChatAreaNew incomingCall={incomingCall}/>
-
-			<div
-				style={{
-					display: renderLanding(),
-					// height: "100vh",
-				}}
-			>
-				<div>
-					{/* <main style={{ minHeight: "calc(100% - 302px)" }}> */}
-					<div className="u-margin-top-xxlarge u-margin-bottom-xxlarge">
-						<div className="o-wrapper-l">
-							<div className="hero flex flex-column">
-								{/* <div>
-                    <h1>Your ID: {yourID}</h1>
-                    <p>receiverID: {receiverID}</p>
-                  </div> */}
-								<div className="callBox flex">
-									<button
-										onClick={() => callPeer(receiverID.toLowerCase().trim())}
-										className="primaryButton"
-									>
-										Call
-									</button>
-								</div>
-							</div>
-						</div>
-					</div>
-					{/* </main> */}
-				</div>
+			{!renderCall && <>
+				<VideoCallingPopup
+					isVideoOpen={showingCallPopup}
+					acceptCall={acceptCall}
+					rejectCall={rejectCall}
+				/>
+				<ChatAreaNew callUser={callPeer} />
 				<Rodal
 					visible={modalVisible}
 					onClose={() => setModalVisible(false)}
@@ -411,9 +299,46 @@ const Chat = () => {
 				>
 					<div>{modalMessage}</div>
 				</Rodal>
-				{incomingCall}
-			</div>
-			<div className="callContainer" style={{ display: renderCall() }}>
+			</>}
+
+
+			{renderCall &&
+				<div
+					className="video-call-screen"
+					style={callAccepted ? {} : { backgroundImage: `url(/assets/img/bg-img/36.jpg)` }}
+				>
+					{/* <!-- Video Streaming Code Goes Here --> */}
+					{callAccepted && <div className="partnerVideoContainer">
+						{PartnerVideo}
+					</div>}
+
+
+					{/* <!-- Back Button--> */}
+					{/* <div className="call-back-button">
+						<Link href="/chat">
+							<i className="bi bi-arrow-left-short"></i>
+						</Link>
+					</div> */}
+
+					{/* <!-- Button Group--> */}
+					<div className="call-btn-group">
+						<Link className="btn btn-dark btn-circle" href="#" onClick={toggleMuteVideo}>
+							{videoMuted ? <i className="bi bi-camera"></i> : <i className="bi bi-camera"></i>}
+						</Link>
+
+						<a className="btn btn-lg btn-danger p-4 btn-call-cancel" href="#" onClick={endCall}>
+							<i className="bi bi-telephone"></i>
+						</a>
+
+						<a className="btn btn-dark btn-circle" href="#" onClick={toggleMuteAudio}>
+							{audioMuted ? <i className="bi bi-mic-mute"></i> : <i className="bi bi-mic"></i>}
+						</a>
+					</div>
+				</div>}
+
+
+
+			{/* <div className="callContainer" style={{ display: renderCall ? 'block' : 'none' }}>
 				<Suspense fallback={<div>Loading...</div>}>
 					<Watermark />
 				</Suspense>
@@ -436,7 +361,7 @@ const Chat = () => {
 					{fullscreenButton}
 					{hangUp}
 				</div>
-			</div>
+			</div> */}
 		</>
 	);
 };
