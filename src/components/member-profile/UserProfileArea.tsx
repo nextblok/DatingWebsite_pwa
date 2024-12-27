@@ -145,7 +145,7 @@ const UserProfileArea = () => {
                 <div className="card team-member-card">
                   <div className="card-body">
                     <div className="team-member-img shadow-sm">
-                      <img src={formData?.profilePhoto} alt="" />
+                      <img src={formData?.profilePhoto} alt="" width="300" height="300"/>
                     </div>
                     <div className="team-info">
                       <h4 className="mb-1">{formData?.fullName}</h4>

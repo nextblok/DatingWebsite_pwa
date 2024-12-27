@@ -169,75 +169,87 @@ const UserList = () => {
 
   return (
     <>
-      {/* <!-- Element Heading --> */}
-      <div className="element-heading">
-        <h6 className="ps-1">Recent contacts</h6>
-      </div>
+      <div className="page-content-wrapper py-3">
+        <div className="container" style={{ height: "calc(100vh - 200px)" }}>
+          {/* <!-- Element Heading --> */}
+          <div className="element-heading">
+            <h6 className="ps-1">Kismet Convos</h6>
+          </div>
 
-      {/* <!-- Chat User List --> */}
-      <ul className="ps-0 chat-user-list">
-        {chatUserList.map((item, i) => (
-          <li key={i} className={`p-3 ${item.status}`}>
-            <Link
-              className="d-flex"
-              href={`/chat?opponent_id=${item.user?.id}`}
-            >
-              {/* <!-- Thumbnail --> */}
-              <div className="chat-user-thumbnail me-3 shadow">
-                <img
-                  className="img-circle"
-                  src={item.user?.profilePhoto}
-                  alt={item.user?.fullName}
-                />
-                {/* <span className="active-status"></span> */}
-              </div>
-              {/* <!-- Info --> */}
-              <div className="chat-user-info">
-                <h6 className="text-truncate mb-0">{item.user?.fullName}</h6>
-                <div className="last-chat">
-                  <p className="mb-0 text-truncate">
-                    {item.lastMessage}
-                    {/* {item.unreadCount > 0 && (
+          {/* <!-- Chat User List --> */}
+          <ul className="ps-0 chat-user-list">
+            {chatUserList.map((item, i) => (
+              <li key={i} className={`p-3 ${item.status}`}>
+                <Link
+                  className="d-flex"
+                  href={`/chat?opponent_id=${item.user?.id}`}
+                >
+                  {/* <!-- Thumbnail --> */}
+                  <div className="chat-user-thumbnail me-3 shadow">
+                    <img
+                      className="img-circle"
+                      src={item.user?.profilePhoto}
+                      alt={item.user?.fullName}
+                    />
+                    {/* <span className="active-status"></span> */}
+                  </div>
+                  {/* <!-- Info --> */}
+                  <div className="chat-user-info">
+                    <h6 className="text-truncate mb-0">
+                      {item.user?.fullName}
+                    </h6>
+                    <div className="last-chat">
+                      <p className="mb-0 text-truncate">
+                        {item.lastMessage}
+                        {/* {item.unreadCount > 0 && (
                       <span className="badge rounded-pill bg-primary">
                         {item.unreadCount}
                       </span>
                     )} */}
-                  </p>
-                </div>
-              </div>
-            </Link>
+                      </p>
+                    </div>
+                  </div>
+                </Link>
 
-            {/* <!-- Options --> */}
-            <div className="dropstart chat-options-btn">
-              <button
-                className="btn dropdown-toggle"
-                type="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                <i className="bi bi-three-dots-vertical"></i>
-              </button>
-              <ul className="dropdown-menu">
-                {/* <li>
+                {/* <!-- Options --> */}
+                <div className="dropstart chat-options-btn">
+                  <button
+                    className="btn dropdown-toggle"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    <i className="bi bi-three-dots-vertical"></i>
+                  </button>
+                  <ul className="dropdown-menu">
+                    {/* <li>
                   <a href="#">
                     <i className="bi bi-mic-mute"></i>Mute
                   </a>
                 </li> */}
-                <li>
-                  <a href="#" onClick={() => handleBlockUser(item.user?.id)}>
-                    <i className="bi bi-slash-circle"></i>Block
-                  </a>
-                </li>
-                <li>
-                  <a href="#" onClick={() => handleRemoveUser(item.user?.id)}>
-                    <i className="bi bi-trash"></i>Remove
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </li>
-        ))}
-      </ul>
+                    <li>
+                      <a
+                        href="#"
+                        onClick={() => handleBlockUser(item.user?.id)}
+                      >
+                        <i className="bi bi-slash-circle"></i>Block
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="#"
+                        onClick={() => handleRemoveUser(item.user?.id)}
+                      >
+                        <i className="bi bi-trash"></i>Remove
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </>
   );
 };

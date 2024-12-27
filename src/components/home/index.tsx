@@ -24,7 +24,7 @@ const Home = () => {
 				{/* <Features /> */}
 				
 				<BrandThree />
-				<Review />
+				{/* <Review /> */}
 				<Banner />
 			</div>
 			<FooterTwo />

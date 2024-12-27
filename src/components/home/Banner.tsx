@@ -16,7 +16,8 @@ const Banner = () => {
               profile customization and search filters. Start your journey to
               meaningful connections today.
             </p>
-            <Link className="btn btn-warning" href="/privacy-policy">
+            {/* <Link className="btn btn-warning" href="/privacy-policy"> */}
+            <Link className="btn btn-warning" href="/terms">
               Terms & Condition
             </Link>
           </div>

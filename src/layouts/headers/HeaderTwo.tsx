@@ -119,7 +119,7 @@ const HeaderTwo = () => {
               </li>
               <li>
                 <Link href="/likes">
-                  <i className="bi bi-star"></i> Likes
+                  <i className="bi bi-heart"></i> Likes
                 </Link>
               </li>
               <li>

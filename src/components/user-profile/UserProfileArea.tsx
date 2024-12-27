@@ -202,7 +202,7 @@ const UserProfileArea = () => {
               </div>
               <div className="user-info">
                 <div className="d-flex align-items-center">
-                  <h6 className="mb-1">Update Avatar</h6>
+                  <h6 className="mb-1">Update Profile Picture</h6>
                 </div>
               </div>
             </div>
