@@ -6,8 +6,11 @@ import VideoCallingPopup from "@/components/common/VideoCallingPopup";
 import Link from "next/link";
 import { io } from "socket.io-client";
 import axios from "axios";
+import { useGlobalContext } from "@/app/layout";
 
-const ChatArea = ({ callUser }: any) => {
+const ChatArea = () => {
+  const { userId, callUser } = useGlobalContext();
+
   interface UserInfo {
     fullName: string;
     role: string;
