@@ -37,19 +37,21 @@ const HeaderTwo = () => {
                 style={{ marginRight: "10px" }}
               >
                 <div
-                  className={
-                    notifications.length > 0 ? "setting-trigger-btn" : ""
-                  }
+                  // className={
+                  //   notifications.length > 0 ? "setting-trigger-btn" : ""
+                  // }
                   id="settingTriggerBtn"
                 >
                   <i className="bi bi-bell"></i>
-                  <span
-                    className="badge bg-success rounded-pill "
-                    onClick={handleShowSetting}
-                    style={{ cursor: "pointer" }}
-                  >
-                    3+
-                  </span>
+                  {notifications.length > 0 && (
+                    <span
+                      className="badge bg-success rounded-pill "
+                      onClick={handleShowSetting}
+                      style={{ cursor: "pointer" }}
+                    >
+                      {notifications.length}+
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -215,7 +217,7 @@ const NotificationPopup = ({
             </div>
             <div className="container">
               {notification__data.map((item, i) => (
-                <Link key={i} href="/notification-details">
+                <Link key={i} href="/#">
                   <div
                     className={`alert custom-alert-3 alert-primary`}
                     role="alert"
