@@ -22,7 +22,6 @@ import VideoCallingPopup from "@/components/common/VideoCallingPopup";
 
 
 const Chat = () => {
-	const [yourID, setYourID] = useState("");
 	const [stream, setStream] = useState();
 	const [receivingCall, setReceivingCall] = useState(false);
 	const [caller, setCaller] = useState("");
@@ -49,15 +48,6 @@ const Chat = () => {
 	const myPeer = useRef();
 
 	const { userId } = useGlobalContext();
-	const [opponentId, setOpponentId] = useState("");
-	useEffect(() => {
-		let param = new URLSearchParams(window.location.search).get("opponent_id");
-		if (param) {
-			setOpponentId(param);
-		}
-
-		setYourID(userId);
-	}, [userId]);
 
 	useEffect(() => {
 		if (!userId) return;
@@ -70,13 +60,13 @@ const Chat = () => {
 		});
 	}, [userId]);
 
-	function callPeer() {
+	const callUser = useCallback((callerId: any) => {
 		window.navigator.mediaDevices
 			.getUserMedia({ video: true, audio: true })
 			.then((stream) => {
 				setStream(stream);
 				setCallingFriend(true);
-				setCaller(opponentId);
+				setCaller(callerId);
 				if (userVideo.current) {
 					userVideo.current.srcObject = stream;
 				}
@@ -128,9 +118,9 @@ const Chat = () => {
 
 				peer.on("signal", (data) => {
 					socket.current.emit("callUser", {
-						userToCall: opponentId,
+						userToCall: callerId,
 						signalData: data,
-						from: yourID,
+						from: userId,
 					});
 				});
 
@@ -152,21 +142,22 @@ const Chat = () => {
 
 				socket.current.on("close", () => {
 					refreshCallStatus();
-					// window.location.reload();
 				});
 
 				socket.current.on("rejected", () => {
 					refreshCallStatus();
-					// window.location.reload();
 				});
 			})
 			.catch(() => {
 				setModalMessage(
-					"You cannot place/ receive a call without granting video and audio permissions! Please change your settings."
+					"You cannot place/ receive a call without granting video and audio permissions!"
 				);
 				setModalVisible(true);
 			});
-	}
+	}, [userId,
+		callerSignal,
+		socket,
+	]);
 
 	const acceptCall = useCallback(() => {
 		window.navigator.mediaDevices
@@ -201,7 +192,6 @@ const Chat = () => {
 
 				socket.current.on("close", () => {
 					refreshCallStatus();
-					// window.location.reload();
 				});
 			})
 			.catch(() => {
@@ -213,26 +203,19 @@ const Chat = () => {
 	}, [
 		caller,
 		callerSignal,
-		setStream,
-		setCallAccepted,
-		setModalMessage,
-		setModalVisible,
 		socket,
-		endCall,
 	]);
 
 	function rejectCall() {
 		setCallRejected(true);
 		socket.current.emit("rejected", { to: caller });
 		refreshCallStatus();
-		// window.location.reload();
 	}
 
 	function endCall() {
 		myPeer.current.destroy();
 		socket.current.emit("close", { to: caller });
 		refreshCallStatus();
-		// window.location.reload();
 	}
 
 	function toggleMuteAudio() {
@@ -248,6 +231,7 @@ const Chat = () => {
 			stream.getVideoTracks()[0].enabled = videoMuted;
 		}
 	}
+	
 	const renderCall = useMemo(() => {
 		return (!callRejected) && (callAccepted || callingFriend);
 	}, [callRejected, callAccepted, callingFriend]);
@@ -288,12 +272,12 @@ const Chat = () => {
 					acceptCall={acceptCall}
 					rejectCall={rejectCall}
 				/>
-				<ChatAreaNew callUser={callPeer} />
+				<ChatAreaNew callUser={callUser} />
 				<Rodal
 					visible={modalVisible}
 					onClose={() => setModalVisible(false)}
 					width={20}
-					height={5}
+					height={7}
 					measure={"em"}
 					closeOnEsc={true}
 				>
@@ -335,33 +319,6 @@ const Chat = () => {
 						</a>
 					</div>
 				</div>}
-
-
-
-			{/* <div className="callContainer" style={{ display: renderCall ? 'block' : 'none' }}>
-				<Suspense fallback={<div>Loading...</div>}>
-					<Watermark />
-				</Suspense>
-
-				<div className="split_left">
-					<div className="partnerVideoContainer">
-						{callAccepted ? (
-							PartnerVideo
-						) : (
-							<div className="waitingText">
-								<h1>Please hold for a while to accept your call.</h1>
-							</div>
-						)}
-					</div>
-				</div>
-				<div className="userVideoContainer">{UserVideo}</div>
-				<div className="controlsContainer flex">
-					{audioControl}
-					{videoControl}
-					{fullscreenButton}
-					{hangUp}
-				</div>
-			</div> */}
 		</>
 	);
 };

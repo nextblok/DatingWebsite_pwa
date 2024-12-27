@@ -7,7 +7,7 @@ import Link from "next/link";
 import { io } from "socket.io-client";
 import axios from "axios";
 
-const ChatArea = ({callUser}:any) => {
+const ChatArea = ({ callUser }: any) => {
   interface UserInfo {
     fullName: string;
     role: string;
@@ -315,7 +315,7 @@ const ChatArea = ({callUser}:any) => {
               <div className="call-icon me-3">
                 <a
                   className="text-secondary"
-                  onClick={callUser}
+                  onClick={() => callUser(opponentId)}
                   id="callingButton"
                   href="#"
                 >
